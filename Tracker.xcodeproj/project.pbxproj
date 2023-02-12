@@ -19,6 +19,7 @@
 		D58A5EA8298EC4E000260AC8 /* WeekDay.swift in Sources */ = {isa = PBXBuildFile; fileRef = D58A5EA7298EC4E000260AC8 /* WeekDay.swift */; };
 		D58A5EAA298ED40300260AC8 /* ScheduleViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D58A5EA9298ED40300260AC8 /* ScheduleViewController.swift */; };
 		D58A5EAC298F19D600260AC8 /* ScheduleViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = D58A5EAB298F19D600260AC8 /* ScheduleViewCell.swift */; };
+		D59938A929998E430093A4D6 /* TrackerCategoryHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D59938A829998E430093A4D6 /* TrackerCategoryHeaderView.swift */; };
 		D5B3C2A42999318000CE90E5 /* TrackerCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5B3C2A32999318000CE90E5 /* TrackerCollectionViewCell.swift */; };
 		D5D3696D2990188000B0D0F0 /* ScheduleButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5D3696C2990188000B0D0F0 /* ScheduleButton.swift */; };
 		D5D3696F29901E9800B0D0F0 /* TrackerColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5D3696E29901E9800B0D0F0 /* TrackerColor.swift */; };
@@ -66,6 +67,7 @@
 		D58A5EA7298EC4E000260AC8 /* WeekDay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeekDay.swift; sourceTree = "<group>"; };
 		D58A5EA9298ED40300260AC8 /* ScheduleViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScheduleViewController.swift; sourceTree = "<group>"; };
 		D58A5EAB298F19D600260AC8 /* ScheduleViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScheduleViewCell.swift; sourceTree = "<group>"; };
+		D59938A829998E430093A4D6 /* TrackerCategoryHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackerCategoryHeaderView.swift; sourceTree = "<group>"; };
 		D5B3C2A32999318000CE90E5 /* TrackerCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackerCollectionViewCell.swift; sourceTree = "<group>"; };
 		D5D3696C2990188000B0D0F0 /* ScheduleButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScheduleButton.swift; sourceTree = "<group>"; };
 		D5D3696E29901E9800B0D0F0 /* TrackerColor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackerColor.swift; sourceTree = "<group>"; };
@@ -169,6 +171,7 @@
 				D5DC2D4F2985CD6C001F9D7B /* TrackersViewController.swift */,
 				D5B3C2A32999318000CE90E5 /* TrackerCollectionViewCell.swift */,
 				D56E0C6F298B12E7008E2038 /* TrackerSelectViewController.swift */,
+				D59938A829998E430093A4D6 /* TrackerCategoryHeaderView.swift */,
 				D5116941298C5BA200D418EC /* TrackerCreationViewController.swift */,
 				D5D3696E29901E9800B0D0F0 /* TrackerColor.swift */,
 				D5D3696C2990188000B0D0F0 /* ScheduleButton.swift */,
@@ -342,6 +345,7 @@
 				D58A5EA2298EC33000260AC8 /* Tracker.swift in Sources */,
 				D58A5EAA298ED40300260AC8 /* ScheduleViewController.swift in Sources */,
 				D58A5EA8298EC4E000260AC8 /* WeekDay.swift in Sources */,
+				D59938A929998E430093A4D6 /* TrackerCategoryHeaderView.swift in Sources */,
 				D58A5E9F298EBA3600260AC8 /* UIColor+HEX.swift in Sources */,
 				D5DC2D7F29869C82001F9D7B /* LetterCollectionViewCell.swift in Sources */,
 				D5DC2D562985CD6C001F9D7B /* Tracker.xcdatamodeld in Sources */,

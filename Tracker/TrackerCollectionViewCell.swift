@@ -21,7 +21,7 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
     private lazy var addButton: UIButton = {
         let button = UIButton()
 
-        button.setImage(UIImage(systemName: "plus"), for: .normal)
+        button.setImage(UIImage(named: "plus"), for: .normal)
         button.layer.cornerRadius = 17
         button.clipsToBounds = true
         button.tintColor = .asset(.white)
@@ -94,6 +94,9 @@ extension TrackerCollectionViewCell {
         emojiLabel.text = model?.emoji
 
         colorBackground.backgroundColor = model?.color.uiColor
+//        colorBackground.layer.borderWidth = 1
+//        colorBackground.layer.borderColor =  UIColor.asset(.red).cgColor
+//        colorBackground.layer.masksToBounds = true
         addButton.backgroundColor = model?.color.uiColor
     }
 }

@@ -15,6 +15,15 @@ final class TrackersViewController: UIViewController {
             frame: .zero,
             collectionViewLayout: UICollectionViewFlowLayout()
         )
+        collectionView.keyboardDismissMode = .onDrag
+        collectionView.contentInset = .init(top: 10, left: 0, bottom: 0, right: 0)
+
+        collectionView.register(
+            TrackerCategoryHeaderView.self,
+            forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader,
+            withReuseIdentifier: "header"
+        )
+
         collectionView.register(TrackerCollectionViewCell.self, forCellWithReuseIdentifier: "Cell")
         return collectionView
     }()
@@ -24,8 +33,11 @@ final class TrackersViewController: UIViewController {
         setupNavBar()
         setupTabBar()
         visibleCategories = filteredData()
-        print("visibleCategories", visibleCategories)
         setupCollectionView()
+        print("visibleCategories", visibleCategories)
+        print("reloadData")
+//        collectionView.reloadData()
+        print("visibleCategories", visibleCategories)
         view.backgroundColor = .white
     }
 
@@ -83,6 +95,7 @@ final class TrackersViewController: UIViewController {
         print("currentDate = ", currentDate)
     }
 
+    //добавление трекера
     @objc
     private func addTracker() {
         let trackerSelect = TrackerSelectViewController(){ [weak self] newTracker in
@@ -97,14 +110,15 @@ final class TrackersViewController: UIViewController {
 
             }
             else {
-                let newCategories = self.categories
-                var trackers = newCategories[0].trackers
+                var trackers = self.categories[0].trackers
                 trackers.append(newTracker)
-                self.categories = newCategories
+                let newCategory = TrackerCategory(label: self.categories[0].label, trackers: trackers)
+                self.categories[0] = newCategory
             }
             self.visibleCategories = self.filteredData()
             print("visibleCategories = ", self.visibleCategories)
-//            self.collectionView.reloadData()
+            print("categories = ", self.visibleCategories)
+            self.collectionView.reloadData()
         }
         present(trackerSelect, animated: true)
     }
@@ -115,15 +129,16 @@ final class TrackersViewController: UIViewController {
 
         view.addSubview(collectionView)
         //        view.backgroundColor = .white
+        let safeArea = view.safeAreaLayoutGuide
 
         NSLayoutConstraint.activate([
-            collectionView.topAnchor.constraint(equalTo: view.topAnchor),
-            collectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -100),
+            collectionView.topAnchor.constraint(equalTo: safeArea.topAnchor),
+            collectionView.bottomAnchor.constraint(equalTo: safeArea.bottomAnchor),
             collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
         ])
 
-        collectionView.backgroundColor = .white
+        collectionView.backgroundColor = .gray
         collectionView.dataSource = self
         collectionView.delegate = self
     }
@@ -132,7 +147,6 @@ final class TrackersViewController: UIViewController {
 
 // collection view
 extension TrackersViewController: UICollectionViewDataSource {
-
 
     func numberOfSections(in collectionView: UICollectionView) -> Int { visibleCategories.count}
 
@@ -147,6 +161,8 @@ extension TrackersViewController: UICollectionViewDataSource {
         cell.configure(with: visibleCategories[indexPath.section].trackers[indexPath.item])
         return cell
     }
+
+    
 }
 
 extension TrackersViewController: UICollectionViewDelegate {
@@ -156,12 +172,21 @@ extension TrackersViewController: UICollectionViewDelegate {
 
 
 extension TrackersViewController: UICollectionViewDelegateFlowLayout {
+
     func collectionView(
         _ collectionView: UICollectionView,
         layout collectionViewLayout: UICollectionViewLayout,
         sizeForItemAt indexPath: IndexPath
     ) -> CGSize {
-        return CGSize(width: collectionView.bounds.width / 2, height: 50)
+        return CGSize(width: (collectionView.bounds.width - 9 - 32) / 2, height: 148)
+    }
+
+    func collectionView(
+        _ collectionView: UICollectionView,
+        layout collectionViewLayout: UICollectionViewLayout,
+        insetForSectionAt section: Int
+    ) -> UIEdgeInsets {
+        UIEdgeInsets(top: 10, left: 16, bottom: 16, right: 16)
     }
 
     func collectionView(
@@ -170,6 +195,14 @@ extension TrackersViewController: UICollectionViewDelegateFlowLayout {
         minimumInteritemSpacingForSectionAt section: Int
     ) -> CGFloat {
         return 0
+    }
+
+    func collectionView(
+        _ collectionView: UICollectionView,
+        layout collectionViewLayout: UICollectionViewLayout,
+        minimumLineSpacingForSectionAt section: Int
+    ) -> CGFloat {
+        0
     }
 }
 
