@@ -16,76 +16,59 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
         configure(with: nil)
     }
 
-    // MARK: Components
-
     private lazy var addButton: UIButton = {
         let button = UIButton()
-
-        button.setImage(UIImage(named: "plus"), for: .normal)
+        button.setImage(UIImage(systemName: "plus"), for: .normal)
         button.layer.cornerRadius = 17
         button.clipsToBounds = true
         button.tintColor = .asset(.white)
-
         button.addTarget(self, action: #selector(doneTapped), for: .touchUpInside)
-
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
 
     private var colorBackground: UIView = {
         let view = UIView()
-
         view.layer.cornerRadius = 16
         view.clipsToBounds = true
-
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
 
     private var trackerLabel: UILabel = {
         let label = UILabel()
-
         label.numberOfLines = 0
-//        label.font = .asset(.ysDisplayMedium, size: 12)
+        label.font = .asset(.ysDisplayMedium, size: 12)
         label.textColor = .asset(.white)
-
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
 
     private var dayLabel: UILabel = {
         let label = UILabel()
-
         label.numberOfLines = 1
-//        label.font = .asset(.ysDisplayMedium, size: 12)
+        label.font = .asset(.ysDisplayMedium, size: 12)
         label.textColor = .asset(.black)
-
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
 
     private var emojiLabel: UILabel = {
         let label = UILabel()
-
-//        label.font = .asset(.ysDisplayMedium, size: 12)
-
+        label.font = .asset(.ysDisplayMedium, size: 12)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
 
     private var emojiBackground: UIView = {
         let view = UIView()
-
         view.backgroundColor = .asset(.contrast)
         view.layer.cornerRadius = 12
         view.clipsToBounds = true
-
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
 }
-
-// MARK: - Configuration
 
 extension TrackerCollectionViewCell {
     func configure(with model: Tracker?) {
@@ -94,22 +77,16 @@ extension TrackerCollectionViewCell {
         emojiLabel.text = model?.emoji
 
         colorBackground.backgroundColor = model?.color.uiColor
-//        colorBackground.layer.borderWidth = 1
-//        colorBackground.layer.borderColor =  UIColor.asset(.red).cgColor
-//        colorBackground.layer.masksToBounds = true
         addButton.backgroundColor = model?.color.uiColor
     }
 }
 
-// MARK: - Actions
-
 private extension TrackerCollectionViewCell {
     @objc func doneTapped() {
-//        delegate?.trackerMarkedCompleted(self)/
+        delegate?.setTrackerCompleted(self)
     }
 }
 
-// MARK: - Appearance
 
 private extension TrackerCollectionViewCell {
     func setupAppearance() {
@@ -117,7 +94,6 @@ private extension TrackerCollectionViewCell {
         contentView.addSubview(trackerLabel)
         contentView.addSubview(dayLabel)
         contentView.addSubview(emojiLabel)
-
         contentView.insertSubview(emojiBackground, at: 0)
         contentView.insertSubview(colorBackground, at: 0)
 

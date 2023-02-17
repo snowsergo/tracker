@@ -3,11 +3,9 @@ import UIKit
 final class TrackerSelectViewController: UIViewController {
     private let labelView: UILabel = UILabel();
     private let completion: (Tracker) -> Void
-    private let addHabbitButton = UIButton(frame: CGRect(x: 100, y: 100, width: 100, height: 50))
-    private let addIrregularButton = UIButton(frame: CGRect(x: 100, y: 100, width: 100, height: 50))
 
     init(completion: @escaping (Tracker) -> Void) {
-//        super.init()
+
         self.completion = completion
         super.init(nibName: nil, bundle: nil)
     }
@@ -22,44 +20,54 @@ final class TrackerSelectViewController: UIViewController {
         setupLayout()
     }
 
+    private lazy var addHabitButton: UIButton = {
+        let button = YPButton(label: "Привычка")
+        button.addTarget(self, action: #selector(addHabit), for: .touchUpInside)
+
+        return button
+    }()
+
+    private lazy var addIrregularButton: UIButton = {
+        let button = YPButton(label: "Нерегулярные событие")
+        button.addTarget(self, action: #selector(addIrregular), for: .touchUpInside)
+        return button
+    }()
+
     private func setupLayout() {
         labelView.translatesAutoresizingMaskIntoConstraints = false
-        addHabbitButton.translatesAutoresizingMaskIntoConstraints = false
+        addHabitButton.translatesAutoresizingMaskIntoConstraints = false
         addIrregularButton.translatesAutoresizingMaskIntoConstraints = false
 
 
         view.addSubview(labelView)
-        view.addSubview(addHabbitButton)
+        view.addSubview(addHabitButton)
         view.addSubview(addIrregularButton)
 
         NSLayoutConstraint.activate([
             labelView.topAnchor.constraint(equalTo: view.topAnchor, constant: 13),
-//            labelView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             labelView.centerXAnchor.constraint(equalTo: view.centerXAnchor)
         ])
 
         NSLayoutConstraint.activate([
-            addHabbitButton.topAnchor.constraint(equalTo: view.topAnchor, constant: 330),
-//            addHabbitButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            addHabbitButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            addHabbitButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            addHabbitButton.heightAnchor.constraint(equalToConstant: 60),
-            addHabbitButton.centerXAnchor.constraint(equalTo: view.centerXAnchor)
+            addHabitButton.topAnchor.constraint(equalTo: view.topAnchor, constant: 330),
+            addHabitButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            addHabitButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            addHabitButton.heightAnchor.constraint(equalToConstant: 60),
+            addHabitButton.centerXAnchor.constraint(equalTo: view.centerXAnchor)
         ])
 
         NSLayoutConstraint.activate([
-            addIrregularButton.topAnchor.constraint(equalTo: addHabbitButton.bottomAnchor, constant: 16),
+            addIrregularButton.topAnchor.constraint(equalTo: addHabitButton.bottomAnchor, constant: 16),
             addIrregularButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             addIrregularButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             addIrregularButton.heightAnchor.constraint(equalToConstant: 60),
             addIrregularButton.centerXAnchor.constraint(equalTo: view.centerXAnchor)
-//            addIrregularButton.widthAnchor.constraint(equalToConstant: <#T##CGFloat#>)
         ])
 
 
-        addHabbitButton.backgroundColor = .black
-        addHabbitButton.setTitle("Привычка", for: .normal)
-        addHabbitButton.addTarget(self, action: #selector(addHabbit), for: .touchUpInside)
+        addHabitButton.backgroundColor = .black
+        addHabitButton.setTitle("Привычка", for: .normal)
+        addHabitButton.addTarget(self, action: #selector(addHabit), for: .touchUpInside)
 
         addIrregularButton.backgroundColor = .black
         addIrregularButton.setTitle("Нерегулярное событие", for: .normal)
@@ -67,18 +75,17 @@ final class TrackerSelectViewController: UIViewController {
 
 
         labelView.text="Создание трекера"
+        labelView.font = .asset(.ysDisplayMedium, size: 16)
     }
 
     @objc
-    private func addHabbit() {
-//        print("addHabbit")
+    private func addHabit() {
         let trackerCreation = TrackerCreationViewController(isRegular: true, completion: completion)
         present(trackerCreation, animated: true)
         }
 
     @objc
     private func addIrregular() {
-//        print("add irregular")
         let trackerCreation = TrackerCreationViewController(isRegular: false, completion: completion)
         present(trackerCreation, animated: true)
         }

@@ -4,7 +4,7 @@ final class TrackerCategoryHeaderView: UICollectionReusableView {
     let titleLabel: UILabel = {
         let label = UILabel()
 
-//        label.font = .asset(.ysDisplayBold, size: 19)
+        label.font = .asset(.ysDisplayBold, size: 19)
 
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -14,7 +14,9 @@ final class TrackerCategoryHeaderView: UICollectionReusableView {
         super.init(frame: frame)
 
         addSubview(titleLabel)
-
+        let view = UIView()
+        view.backgroundColor = .red
+        
         NSLayoutConstraint.activate([
             titleLabel.topAnchor.constraint(equalTo: topAnchor),
             titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 28),

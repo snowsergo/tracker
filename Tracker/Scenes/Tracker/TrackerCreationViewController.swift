@@ -2,9 +2,7 @@ import UIKit
 
 final class TrackerCreationViewController: UIViewController{
     private var isRegular: Bool
-//    private let onCreate: (Tracker, TrackerCategory) -> Void
     private var days: Set<WeekDay> = []
-//    private let categories: [TrackerCategory]
     private let completion: (Tracker) -> Void
     private let emojis = [
         "🙂", "😻", "🌺", "🐶", "❤️", "😱", "😇", "😡", "🥶",
@@ -13,8 +11,6 @@ final class TrackerCreationViewController: UIViewController{
 
     init(isRegular: Bool, completion: @escaping (Tracker) -> Void){
         self.isRegular = isRegular
-//        self.categories = categories
-//        self.onCreate = onCreate
         self.completion = completion
         super.init(nibName: nil, bundle: nil)
     }
@@ -25,22 +21,20 @@ final class TrackerCreationViewController: UIViewController{
 
     private let labelView: UILabel = UILabel();
     private let textField: UITextField = UITextField()
-//    private let scheduleButton = UIButton(frame: CGRect(x: 100, y: 100, width: 100, height: 50))
     private let submitButton = UIButton(frame: CGRect(x: 100, y: 100, width: 100, height: 50))
     private let cancelButton = UIButton(frame: CGRect(x: 100, y: 100, width: 100, height: 50))
 
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
-        setupEntity()
-//        setupScheduleButton()
+        setupAppearance()
         if isRegular {
             addScheduleButton()
         }
 
     }
 
-    private func setupEntity() {
+    private func setupAppearance() {
 
         labelView.translatesAutoresizingMaskIntoConstraints = false
         textField.translatesAutoresizingMaskIntoConstraints = false
@@ -56,8 +50,14 @@ final class TrackerCreationViewController: UIViewController{
             textField.heightAnchor.constraint(equalToConstant: 75)
         ])
         textField.placeholder = "Введите название трекера"
+        textField.font = .asset(.ysDisplayRegular, size: 17)
+        let paddingLeft = UIView(frame: .init(origin: .zero, size: .init(width: 16, height: 1)))
+        textField.leftViewMode = .always
+        textField.leftView = paddingLeft
         textField.clearButtonMode = .always
         textField.backgroundColor = .asset(.lightGrey).withAlphaComponent(0.3)
+        textField.layer.cornerRadius = 10
+        textField.layer.masksToBounds = true
         textField.addTarget(self, action: #selector(handleTextField), for: .allEditingEvents)
 
 
@@ -85,10 +85,11 @@ final class TrackerCreationViewController: UIViewController{
         ])
 
         labelView.text = isRegular ? "Новая привычка" : "Новое нерегулярное событие"
+        labelView.font = .asset(.ysDisplayMedium, size: 16)
         submitButton.setTitle("Создать", for: .normal)
         submitButton.backgroundColor = .asset(.grey)
+        submitButton.isEnabled = false
         submitButton.layer.cornerRadius = 16
-//        submitButton.layer.borderColor = CG.asset(.black)
         submitButton.addTarget(self, action: #selector(createTracker), for: .touchUpInside)
         submitButton.setTitleColor(.white, for: .normal)
         cancelButton.setTitle("Отменить", for: .normal)
@@ -96,21 +97,31 @@ final class TrackerCreationViewController: UIViewController{
         cancelButton.layer.borderColor = UIColor.asset(.red).cgColor
         cancelButton.setTitleColor(.asset(.red), for: .normal)
         cancelButton.layer.cornerRadius = 16
-//        cancelButton
         cancelButton.addTarget(self, action: #selector(cancelCreation), for: .touchUpInside)
 
     }
+
+    func updateButtonStatus() {
+        let isScheduleOK = !isRegular  || !days.isEmpty
+        let isInputOK = textField.text != nil && textField.text != ""
+        if isScheduleOK && isInputOK {
+            submitButton.isEnabled = true
+            submitButton.backgroundColor = .asset(.black)
+        } else {
+            submitButton.isEnabled = false
+            submitButton.backgroundColor = .asset(.grey)
+        }
+    }
+
     @objc
     private func cancelCreation() {
-//        print("cancelCreation")
         self.view.window!.rootViewController?.dismiss(animated: false, completion: nil)
         }
 
     @objc
     private func handleTextField() {
-//        print("handleTextField")
+        updateButtonStatus()
         }
-
 
     private lazy var scheduleButton: ScheduleButton = {
         let button = ScheduleButton(title: "Расписание")
@@ -128,12 +139,10 @@ final class TrackerCreationViewController: UIViewController{
         ])
     }
 
-
 }
 
 private extension TrackerCreationViewController {
     @objc func changeSchedule() {
-//        print("changeSchedule")
         let scheduleCreation = ScheduleViewController(days: days) { [weak self] newDays in
             guard let self else { return }
             self.days = newDays
@@ -143,10 +152,9 @@ private extension TrackerCreationViewController {
                 .joined(separator: ", ")
 
             self.scheduleButton.setSubtitle(selectedDays.isEmpty ? nil : selectedDays)
+            self.updateButtonStatus()
         }
         present(scheduleCreation, animated: true)
-//        updateButtonStatus()
-//        navigateTo(scheduleVC)
     }
 
     @objc func createTracker() {
@@ -161,11 +169,8 @@ private extension TrackerCreationViewController {
             color: TrackerColor.allCases.randomElement()!,
             schedule: isRegular ? days : nil
         )
-//        print("NewTracker = ", newTracker)
-//        onCreate(newTracker, categories[0])
-        completion(newTracker)
 
-//        dismiss(animated: true)
+        completion(newTracker)
         self.view.window!.rootViewController?.dismiss(animated: false, completion: nil)
     }
 }

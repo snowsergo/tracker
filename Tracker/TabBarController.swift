@@ -1,6 +1,17 @@
 import UIKit
 
 final class TabBarController: UITabBarController {
+    var onboarding: UIViewController?
+
+    init(onboarding: UIViewController?) {
+        self.onboarding = onboarding
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
     override func viewDidLoad() {
            super.viewDidLoad()
 
@@ -21,4 +32,20 @@ final class TabBarController: UITabBarController {
                 )
         self.viewControllers = [navigationController, statisticsViewController]
        }
+
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        presentOnboarding()
+    }
+}
+
+
+private extension TabBarController {
+    func presentOnboarding() {
+        if let onboarding {
+            onboarding.modalPresentationStyle = .overFullScreen
+            present(onboarding, animated: false)
+            self.onboarding = nil
+        }
+    }
 }

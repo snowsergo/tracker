@@ -26,10 +26,10 @@ extension WeekDay {
         }
         return label
     }
-
+    
     var shortLabel: String {
         let label: String
-
+        
         switch self {
         case .monday:
             label = "Пн"
@@ -49,28 +49,3 @@ extension WeekDay {
         return label
     }
 }
-
-//extension WeekDay {
-//    static var allCasesSortedForUserCalendar: [WeekDay] {
-//        guard
-//            let usersFirstDay = WeekDay(rawValue: Calendar.current.firstWeekday),
-//            let sortedDays = WeekDay.allCases.startingFrom(usersFirstDay)
-//        else { return WeekDay.allCases }
-//
-//        return sortedDays
-//    }
-//}
-
-//extension Set where Element == WeekDay {
-//    static var mockEveryDay: Set<WeekDay> {
-//        [.monday, .tuesday, .wednesday, .thursday, .friday, .saturday, .sunday]
-//    }
-//
-//    static var mockOnWeekDays: Set<WeekDay> {
-//        [.monday, .tuesday, .wednesday, .thursday, .friday]
-//    }
-//
-//    static var mockOnWeekends: Set<WeekDay> {
-//        [.saturday, .sunday]
-//    }
-//}

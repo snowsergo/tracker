@@ -59,6 +59,7 @@ final class ScheduleViewController: UIViewController{
 
 
         labelView.text = "Расписание"
+        labelView.font = .asset(.ysDisplayMedium, size: 16)
         submitButton.setTitle("Готово", for: .normal)
         submitButton.backgroundColor = .asset(.black)
         submitButton.layer.cornerRadius = 16
