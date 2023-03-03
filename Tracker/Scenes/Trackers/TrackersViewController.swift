@@ -166,31 +166,86 @@ final class TrackersViewController: UIViewController {
         collectionView.reloadData()
         updatePlaceholderVisibility()
     }
-    
-    //добавление трекера
-    @objc
-    private func addTracker() {
-        let trackerSelect = TrackerSelectViewController(){ [weak self] newTracker in
-            guard let self else { return }
-            if self.categories.isEmpty {
+
+
+    func addNewTracker(newTracker: Tracker, categoryId: UUID) {
+//        if self.categories.isEmpty {
+//            let newCategory = TrackerCategory(
+//                label: "Тестовая категория",
+//                trackers: [newTracker]
+//            )
+//            self.categories = [newCategory]
+//
+//        }
+//        else {
+
+            if let i = categories.firstIndex(where: { $0.id == categoryId }) {
+               // do something with foo
+                var trackers = categories[i].trackers
+                trackers.append(newTracker)
+                let newCategory = TrackerCategory(label: categories[i].label, trackers: trackers)
+                self.categories[i] = newCategory
+            } else {
+               // item could not be found
                 let newCategory = TrackerCategory(
                     label: "Тестовая категория",
                     trackers: [newTracker]
                 )
-                self.categories = [newCategory]
-                
+                self.categories.append(newCategory)
             }
-            else {
-                var trackers = self.categories[0].trackers
-                trackers.append(newTracker)
-                let newCategory = TrackerCategory(label: self.categories[0].label, trackers: trackers)
-                self.categories[0] = newCategory
-            }
+
+//            var trackers = self.categories[0].trackers
+//            trackers.append(newTracker)
+//            let newCategory = TrackerCategory(label: self.categories[0].label, trackers: trackers)
+//            self.categories[0] = newCategory
+//        }
+        self.visibleCategories = self.filteredData()
+        self.collectionView.reloadData()
+        self.updatePlaceholderVisibility()
+    }
+
+    //добавление трекера
+    @objc
+    private func addTracker() {
+        let trackerSelect = TrackerSelectViewController(categories: categories, addingTrackerCompletion: addNewTracker, addingCategoryCompletion: addNewCategory)
+//        { [weak self] newTracker in
+//            guard let self else { return }
+//            if self.categories.isEmpty {
+//                let newCategory = TrackerCategory(
+//                    label: "Тестовая категория",
+//                    trackers: [newTracker]
+//                )
+//                self.categories = [newCategory]
+//
+//            }
+//            else {
+//                var trackers = self.categories[0].trackers
+//                trackers.append(newTracker)
+//                let newCategory = TrackerCategory(label: self.categories[0].label, trackers: trackers)
+//                self.categories[0] = newCategory
+//            }
+//            self.visibleCategories = self.filteredData()
+//            self.collectionView.reloadData()
+//            self.updatePlaceholderVisibility()
+//        }
+        present(trackerSelect, animated: true)
+    }
+    //добавление категории
+//    @objc
+//    private
+    func addNewCategory(newCategory: TrackerCategory) {
+        print("добавляем категорию в главный список")
+//        let categoryCreationViewController = CategoryCreationViewController(){ [weak self] newCategory in
+//            guard let self else { return }
+            var categories = self.categories
+            categories.append(newCategory)
+            self.categories = categories
             self.visibleCategories = self.filteredData()
             self.collectionView.reloadData()
             self.updatePlaceholderVisibility()
-        }
-        present(trackerSelect, animated: true)
+        print("main-categories = ", categories);
+//        }
+//        present(categoryCreationViewController, animated: true)
     }
     
     // настройка коллекции

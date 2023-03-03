@@ -1,12 +1,15 @@
 import UIKit
 
 final class TrackerSelectViewController: UIViewController {
+    private var categories: [TrackerCategory]
     private let labelView: UILabel = UILabel();
-    private let completion: (Tracker) -> Void
+    private let addingTrackerCompletion: (Tracker, UUID) -> Void
+    private let addingCategoryCompletion: (TrackerCategory) -> Void
 
-    init(completion: @escaping (Tracker) -> Void) {
-
-        self.completion = completion
+    init(categories: [TrackerCategory], addingTrackerCompletion: @escaping (Tracker, UUID) -> Void,  addingCategoryCompletion: @escaping (TrackerCategory) -> Void ) {
+        self.categories = categories
+        self.addingTrackerCompletion = addingTrackerCompletion
+        self.addingCategoryCompletion = addingCategoryCompletion
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -80,13 +83,13 @@ final class TrackerSelectViewController: UIViewController {
 
     @objc
     private func addHabit() {
-        let trackerCreation = TrackerCreationViewController(isRegular: true, completion: completion)
+        let trackerCreation = TrackerCreationViewController(categories: categories, isRegular: true, completion: addingTrackerCompletion, addingCategoryCompletion: addingCategoryCompletion )
         present(trackerCreation, animated: true)
         }
 
     @objc
     private func addIrregular() {
-        let trackerCreation = TrackerCreationViewController(isRegular: false, completion: completion)
+        let trackerCreation = TrackerCreationViewController(categories: categories, isRegular: false, completion: addingTrackerCompletion, addingCategoryCompletion: addingCategoryCompletion)
         present(trackerCreation, animated: true)
         }
     }
