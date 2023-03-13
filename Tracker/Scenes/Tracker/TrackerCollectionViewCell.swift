@@ -76,8 +76,10 @@ extension TrackerCollectionViewCell {
         dayLabel.text = model != nil ? "?? день" : nil
         emojiLabel.text = model?.emoji
 
-        colorBackground.backgroundColor = model?.color.uiColor
-        addButton.backgroundColor = model?.color.uiColor
+//        colorBackground.backgroundColor = model?.color.uiColor
+        guard let color = model?.color else {return}
+        colorBackground.backgroundColor = UIColor(hex: color + "ff")
+        addButton.backgroundColor =  UIColor(hex: color + "ff")
     }
 }
 

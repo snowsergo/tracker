@@ -6,10 +6,12 @@ final class TrackersViewController: UIViewController {
     private var visibleCategories: [TrackerCategory] = []
     private var completedTrackers: [Date: Set<TrackerRecord>] = [:]
     private var currentDate: Date = Date()
-    
     private let datePicker: UIDatePicker = UIDatePicker()
     private var searchText: String = ""
     private var isFiltered: Bool = false
+
+    private var trackerStore = TrackerStore()
+    private var trackerCategoryStore = TrackerCategoryStore()
     
     private let collectionView: UICollectionView = {
         let collectionView = UICollectionView(
@@ -33,13 +35,16 @@ final class TrackersViewController: UIViewController {
         super.viewDidLoad()
         setupNavBar()
         setupTabBar()
+        categories = trackerCategoryStore.getAllCategories()
         visibleCategories = filteredData()
         setupCollectionView()
         setupPlaceHolders()
         updatePlaceholderVisibility()
         view.backgroundColor = .white
     }
-    
+
+  
+
     //настройка навбара сверху
     private func setupNavBar() {
         if let navBar = navigationController?.navigationBar {
@@ -145,13 +150,16 @@ final class TrackersViewController: UIViewController {
     }()
     
     func setTrackerCompleted(_ cell: TrackerCollectionViewCell) {
+        print("setTrackerCompleted")
         guard
             let indexPath = collectionView.indexPath(for: cell)
         else {
             assertionFailure("Can't find cell")
             return
         }
-        let tracker = categories[indexPath.section].trackers[indexPath.row]
+        print("categories = ", categories)
+        print("indexPath = ", indexPath)
+        let tracker = visibleCategories[indexPath.section].trackers[indexPath.row]
         var completedTrackersForDay = completedTrackers[currentDate, default: []]
         completedTrackersForDay.insert(.init(trackerId: tracker.id, date: currentDate))
         completedTrackers[currentDate] = completedTrackersForDay
@@ -169,36 +177,36 @@ final class TrackersViewController: UIViewController {
 
 
     func addNewTracker(newTracker: Tracker, categoryId: UUID) {
-//        if self.categories.isEmpty {
-//            let newCategory = TrackerCategory(
-//                label: "Тестовая категория",
-//                trackers: [newTracker]
-//            )
-//            self.categories = [newCategory]
-//
-//        }
-//        else {
+        //        if self.categories.isEmpty {
+        //            let newCategory = TrackerCategory(
+        //                label: "Тестовая категория",
+        //                trackers: [newTracker]
+        //            )
+        //            self.categories = [newCategory]
+        //
+        //        }
+        //        else {
 
-            if let i = categories.firstIndex(where: { $0.id == categoryId }) {
-               // do something with foo
-                var trackers = categories[i].trackers
-                trackers.append(newTracker)
-                let newCategory = TrackerCategory(label: categories[i].label, trackers: trackers)
-                self.categories[i] = newCategory
-            } else {
-               // item could not be found
-                let newCategory = TrackerCategory(
-                    label: "Тестовая категория",
-                    trackers: [newTracker]
-                )
-                self.categories.append(newCategory)
-            }
+        if let i = categories.firstIndex(where: { $0.id == categoryId }) {
+            // do something with foo
+            var trackers = categories[i].trackers
+            trackers.append(newTracker)
+            let newCategory = TrackerCategory(label: categories[i].label, trackers: trackers)
+            self.categories[i] = newCategory
+        } else {
+            // item could not be found
+            let newCategory = TrackerCategory(
+                label: "Тестовая категория",
+                trackers: [newTracker]
+            )
+            self.categories.append(newCategory)
+        }
 
-//            var trackers = self.categories[0].trackers
-//            trackers.append(newTracker)
-//            let newCategory = TrackerCategory(label: self.categories[0].label, trackers: trackers)
-//            self.categories[0] = newCategory
-//        }
+        //            var trackers = self.categories[0].trackers
+        //            trackers.append(newTracker)
+        //            let newCategory = TrackerCategory(label: self.categories[0].label, trackers: trackers)
+        //            self.categories[0] = newCategory
+        //        }
         self.visibleCategories = self.filteredData()
         self.collectionView.reloadData()
         self.updatePlaceholderVisibility()
@@ -208,44 +216,52 @@ final class TrackersViewController: UIViewController {
     @objc
     private func addTracker() {
         let trackerSelect = TrackerSelectViewController(categories: categories, addingTrackerCompletion: addNewTracker, addingCategoryCompletion: addNewCategory)
-//        { [weak self] newTracker in
-//            guard let self else { return }
-//            if self.categories.isEmpty {
-//                let newCategory = TrackerCategory(
-//                    label: "Тестовая категория",
-//                    trackers: [newTracker]
-//                )
-//                self.categories = [newCategory]
-//
-//            }
-//            else {
-//                var trackers = self.categories[0].trackers
-//                trackers.append(newTracker)
-//                let newCategory = TrackerCategory(label: self.categories[0].label, trackers: trackers)
-//                self.categories[0] = newCategory
-//            }
-//            self.visibleCategories = self.filteredData()
-//            self.collectionView.reloadData()
-//            self.updatePlaceholderVisibility()
-//        }
+        //        { [weak self] newTracker in
+        //            guard let self else { return }
+        //            if self.categories.isEmpty {
+        //                let newCategory = TrackerCategory(
+        //                    label: "Тестовая категория",
+        //                    trackers: [newTracker]
+        //                )
+        //                self.categories = [newCategory]
+        //
+        //            }
+        //            else {
+        //                var trackers = self.categories[0].trackers
+        //                trackers.append(newTracker)
+        //                let newCategory = TrackerCategory(label: self.categories[0].label, trackers: trackers)
+        //                self.categories[0] = newCategory
+        //            }
+        //            self.visibleCategories = self.filteredData()
+        //            self.collectionView.reloadData()
+        //            self.updatePlaceholderVisibility()
+        //        }
         present(trackerSelect, animated: true)
     }
     //добавление категории
-//    @objc
-//    private
+    //    @objc
+    //    private
     func addNewCategory(newCategory: TrackerCategory) {
         print("добавляем категорию в главный список")
-//        let categoryCreationViewController = CategoryCreationViewController(){ [weak self] newCategory in
-//            guard let self else { return }
-            var categories = self.categories
-            categories.append(newCategory)
-            self.categories = categories
-            self.visibleCategories = self.filteredData()
-            self.collectionView.reloadData()
-            self.updatePlaceholderVisibility()
+        //        let categoryCreationViewController = CategoryCreationViewController(){ [weak self] newCategory in
+        //            guard let self else { return }
+        var categories = self.categories
+        categories.append(newCategory)
+        do {
+            try trackerCategoryStore.addNewCategory(newCategory)
+
+        }
+        catch {
+            print(error)
+        }
+
+        self.categories = categories
+        self.visibleCategories = self.filteredData()
+        self.collectionView.reloadData()
+        self.updatePlaceholderVisibility()
         print("main-categories = ", categories);
-//        }
-//        present(categoryCreationViewController, animated: true)
+        //        }
+        //        present(categoryCreationViewController, animated: true)
     }
     
     // настройка коллекции
@@ -308,6 +324,7 @@ extension TrackersViewController: UICollectionViewDelegateFlowLayout {
         sizeForItemAt indexPath: IndexPath
     ) -> CGSize {
         return CGSize(width: (collectionView.bounds.width - 9 - 32) / 2, height: 148)
+        //        return CGSize(width: (collectionView.bounds.width - 9) / 2, height: 148)
     }
     
     func collectionView(

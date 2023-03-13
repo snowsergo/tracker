@@ -81,15 +81,22 @@ final class TrackerSelectViewController: UIViewController {
         labelView.font = .asset(.ysDisplayMedium, size: 16)
     }
 
+    func addCategory(newCategory: TrackerCategory)->Void {
+        addingCategoryCompletion(newCategory);
+        var categories = self.categories
+        categories.append(newCategory)
+        self.categories = categories
+    }
+
     @objc
     private func addHabit() {
-        let trackerCreation = TrackerCreationViewController(categories: categories, isRegular: true, completion: addingTrackerCompletion, addingCategoryCompletion: addingCategoryCompletion )
+        let trackerCreation = TrackerCreationViewController(categories: categories, isRegular: true, completion: addingTrackerCompletion, addingCategoryCompletion: addCategory)
         present(trackerCreation, animated: true)
         }
 
     @objc
     private func addIrregular() {
-        let trackerCreation = TrackerCreationViewController(categories: categories, isRegular: false, completion: addingTrackerCompletion, addingCategoryCompletion: addingCategoryCompletion)
+        let trackerCreation = TrackerCreationViewController(categories: categories, isRegular: false, completion: addingTrackerCompletion, addingCategoryCompletion: addCategory)
         present(trackerCreation, animated: true)
         }
     }

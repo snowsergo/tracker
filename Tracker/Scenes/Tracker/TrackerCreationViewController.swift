@@ -33,8 +33,8 @@ final class TrackerCreationViewController: UIViewController{
         "#8D72E6",
         "#2FD058"
     ]
-//    @IBOutlet weak var emojiCollectionView: UICollectionView!
-//    @IBOutlet weak var colorCollectionView: UICollectionView!
+    //        @IBOutlet weak var emojiCollectionView: UICollectionView!
+    //        @IBOutlet weak var colorCollectionView: UICollectionView!
 
     private let emojiCollectionView: UICollectionView = {
         let collectionView = UICollectionView(
@@ -95,35 +95,26 @@ final class TrackerCreationViewController: UIViewController{
         super.viewDidLoad()
         view.backgroundColor = .white
         setupAppearance()
+        addCategoryButton()
         if isRegular {
-            addCategoryButton()
             addScheduleButton()
         }
-        setupScrollView()
+
+        setupScrollView(isRegular: isRegular)
         setupEmojiCollectionView()
         setupColorCollectionView()
-//        // Set up the data source and delegate for the first collection view
-//        let collectionView1DataSource = CollectionView1DataSource(data: emojis)
-//        emojiCollectionView.dataSource = collectionView1DataSource
-//        emojiCollectionView.delegate = collectionView1DataSource
-//
-//
-//        // Set up the data source and delegate for the second collection view
-//        let collectionView2DataSource = CollectionView2DataSource(data: colors)
-//        colorCollectionView.dataSource = collectionView2DataSource
-//        colorCollectionView.delegate = collectionView2DataSource
-
     }
-    private func setupScrollView() {
+
+
+    private func setupScrollView(isRegular: Bool) {
         scrollView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(scrollView)
         NSLayoutConstraint.activate([
-            scrollView.topAnchor.constraint(equalTo: scheduleButton.bottomAnchor, constant: 16),
+            scrollView.topAnchor.constraint(equalTo: isRegular ? scheduleButton.bottomAnchor : categoryButton.bottomAnchor, constant: 8),
             scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
-            scrollView.bottomAnchor.constraint(equalTo: submitButton.topAnchor, constant: -16)
+            scrollView.bottomAnchor.constraint(equalTo: submitButton.topAnchor, constant: -16),
         ])
-        scrollView.backgroundColor = .red
     }
 
     private func setupAppearance() {
@@ -135,6 +126,7 @@ final class TrackerCreationViewController: UIViewController{
 
         view.addSubview(labelView)
         view.addSubview(textField)
+
         NSLayoutConstraint.activate([
             textField.topAnchor.constraint(equalTo: labelView.bottomAnchor, constant: 50),
             textField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
@@ -193,44 +185,66 @@ final class TrackerCreationViewController: UIViewController{
 
     // настройка коллекции emoji
     private func setupEmojiCollectionView() {
+        emojiCollectionView.dataSource = self
+        emojiCollectionView.delegate = self
+        //        let collectionView1DataSource = CollectionView1DataSource(data: emojis)
         emojiCollectionView.translatesAutoresizingMaskIntoConstraints = false
 
         scrollView.addSubview(emojiCollectionView)
+//        let contentRect: CGRect = emojiCollectionView.subviews.reduce(into: .zero) { rect, view in
+//            rect = rect.union(view.frame)
+//        }
+        print(emojiCollectionView.subviews)
 
+        let height = emojiCollectionView.systemLayoutSizeFitting(
+            CGSize(width: emojiCollectionView.bounds.width, height: 0),
+            withHorizontalFittingPriority: .required,
+            verticalFittingPriority: .defaultLow
+        ).height
+        print("height = ", height)
         NSLayoutConstraint.activate([
-            emojiCollectionView.topAnchor.constraint(equalTo: scrollView.topAnchor),
-//            emojiCollectionView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
-            emojiCollectionView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
-            emojiCollectionView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
+            emojiCollectionView.heightAnchor.constraint(equalToConstant: 220),
+            emojiCollectionView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
+            emojiCollectionView.topAnchor.constraint(equalTo: scrollView.topAnchor)
         ])
 
-        emojiCollectionView.dataSource = self
-        emojiCollectionView.delegate = self
     }
 
     // настройка коллекции color
     private func setupColorCollectionView() {
+        colorCollectionView.dataSource = self
+        colorCollectionView.delegate = self
+        //        let collectionView2DataSource = CollectionView2DataSource(data: colors)
         colorCollectionView.translatesAutoresizingMaskIntoConstraints = false
 
         scrollView.addSubview(colorCollectionView)
         //        let safeArea = view.safeAreaLayoutGuide
-
+//        let contentRect: CGRect = colorCollectionView.subviews.reduce(into: .zero) { rect, view in
+//            rect = rect.union(view.frame)
+//        }
         NSLayoutConstraint.activate([
-            colorCollectionView.topAnchor.constraint(equalTo: emojiCollectionView.bottomAnchor, constant: 16),
+            colorCollectionView.heightAnchor.constraint(equalToConstant: 220),
+            colorCollectionView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
+            colorCollectionView.topAnchor.constraint(equalTo: emojiCollectionView.bottomAnchor),
             colorCollectionView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
-            colorCollectionView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
-            colorCollectionView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
+//            colorCollectionView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
+//            colorCollectionView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
         ])
 
-        colorCollectionView.dataSource = self
-        colorCollectionView.delegate = self
+        //        colorCollectionView.dataSource = collectionView2DataSource
+        //        colorCollectionView.delegate = collectionView2DataSource
+
+//        colorCollectionView.backgroundColor = .blue
     }
 
 
     func updateButtonStatus() {
         let isScheduleOK = !isRegular  || !days.isEmpty
         let isInputOK = textField.text != nil && textField.text != ""
-        if isScheduleOK && isInputOK {
+        let isCategoryOk = selectedCategory != nil
+        let isEmojiOk = selectedEmoji != nil
+        let isColorOk = selectedColor != nil
+        if isScheduleOK && isInputOK && isCategoryOk && isEmojiOk && isColorOk {
             submitButton.isEnabled = true
             submitButton.backgroundColor = .asset(.black)
         } else {
@@ -305,22 +319,32 @@ private extension TrackerCreationViewController {
         self.categoryButton.setSubtitle(selectedCategory.label)
         self.updateButtonStatus()
     }
+
+    func addCategory(newCategory: TrackerCategory)->Void {
+        addingCategoryCompletion(newCategory);
+        var categories = self.categories
+        categories.append(newCategory)
+        self.categories = categories
+    }
+
     @objc func changeCategory() {
         //        print("changeCategory")
-        let categoryViewController = CategoryViewController(categories: categories, selectedCategory: selectedCategory, days: days, completion: selectCategory, addingCategoryCompletion: addingCategoryCompletion)
+        let categoryViewController = CategoryViewController(categories: categories, selectedCategory: selectedCategory, days: days, completion: selectCategory, addingCategoryCompletion: addCategory)
         present(categoryViewController, animated: true)
     }
 
     @objc func createTracker() {
-        guard let text = textField.text else {
+        guard let text = textField.text, let emoji = selectedEmoji, let color = selectedColor else {
             assertionFailure("Button should be disabled")
             return
         }
 
         let newTracker = Tracker(
             label: text,
-            emoji: emojis.randomElement()!,
-            color: TrackerColor.allCases.randomElement()!,
+            emoji: emoji,
+            color: color,
+//            emoji: emojis.randomElement()!,
+//            color: TrackerColor.allCases.randomElement()!,
             schedule: isRegular ? days : nil
         )
         guard let categoryId = selectedCategory?.id else { return }
@@ -336,26 +360,23 @@ private extension TrackerCreationViewController {
 extension TrackerCreationViewController: UICollectionViewDataSource {
 
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        if collectionView == self.emojiCollectionView {
-            return emojis.count
-        } else if collectionView == self.colorCollectionView {
-            return colors.count
-        }
-        else {
-            return 0
+        switch collectionView {
+        case emojiCollectionView : return emojis.count
+        case colorCollectionView : return colors.count
+        default : return 0
         }
     }
 
-//    ячейка
+    //    ячейка
     func collectionView(
         _ collectionView: UICollectionView,
         cellForItemAt indexPath: IndexPath
     ) -> UICollectionViewCell {
-        if collectionView == self.emojiCollectionView {
+        if collectionView == emojiCollectionView {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "emojiCell", for: indexPath) as! EmojiCell
             cell.configure(emoji: emojis[indexPath.row], isSelected: false)
             return cell
-        } else if collectionView == self.colorCollectionView  {
+        } else if collectionView == colorCollectionView  {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "colorCell", for: indexPath) as! ColorCell
             cell.configure(color: colors[indexPath.row], isSelected: false)
             return cell
@@ -363,15 +384,15 @@ extension TrackerCreationViewController: UICollectionViewDataSource {
         else {
             return UICollectionViewCell()
         }
-            }
+    }
 
-//    хедер с названием суб-таблицы
+    //    хедер с названием суб-таблицы
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
-        if collectionView == self.emojiCollectionView {
+        if collectionView == emojiCollectionView {
             let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: "emojiHeader", for: indexPath) as! SubTableHeaderView
             header.configure(label: "Emoji")
             return header
-        } else if collectionView == self.colorCollectionView {
+        } else if collectionView == colorCollectionView {
             let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: "colorHeader", for: indexPath) as! SubTableHeaderView
             header.configure(label: "Цвет")
             return header
@@ -381,6 +402,7 @@ extension TrackerCreationViewController: UICollectionViewDataSource {
         }
     }
 }
+// actions in tables
 private extension TrackerCreationViewController {
 
     func tapEmoji(at path: IndexPath) {
@@ -428,11 +450,12 @@ private extension TrackerCreationViewController {
 
 extension TrackerCreationViewController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        if collectionView == self.emojiCollectionView {
-            tapEmoji(at: indexPath)
-        } else if collectionView == self.colorCollectionView {
-            tapColor(at: indexPath)
-        }
+                if collectionView == self.emojiCollectionView {
+                    tapEmoji(at: indexPath)
+                } else if collectionView == self.colorCollectionView {
+                    tapColor(at: indexPath)
+                }
+        updateButtonStatus()
     }
 }
 
@@ -443,6 +466,7 @@ extension TrackerCreationViewController: UICollectionViewDelegateFlowLayout {
         sizeForItemAt indexPath: IndexPath
     ) -> CGSize {
         return CGSize(width: 52, height: 52)
+//        return CGSize(width: 10, height: 10)
     }
 
     func collectionView(
@@ -477,89 +501,3 @@ extension TrackerCreationViewController: UICollectionViewDelegateFlowLayout {
         0
     }
 }
-
-//class CollectionView1DataSource: NSObject, UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout {
-//    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-//        data.count
-//    }
-//
-//    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-//        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "emojiCell", for: indexPath) as! EmojiCell
-//        cell.configure(emoji: data[indexPath.row], isSelected: false)
-//        return cell
-//    }
-//    func collectionView(
-//          _ collectionView: UICollectionView,
-//          layout collectionViewLayout: UICollectionViewLayout,
-//          sizeForItemAt indexPath: IndexPath
-//      ) -> CGSize {
-//          return CGSize(width: 52, height: 52)
-//      }
-//
-//    let data: [String]
-//
-//
-//    init(data: [String]) {
-//        self.data = data
-//    }
-//
-//
-//    // Implement the required data source and delegate methods for your first collection view here
-//}
-//
-//
-//class CollectionView2DataSource: NSObject, UICollectionViewDataSource, UICollectionViewDelegate,UICollectionViewDelegateFlowLayout {
-//    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-//        data.count
-//    }
-//
-//    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-//        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "colorCell", for: indexPath) as! ColorCell
-//        cell.configure(color: data[indexPath.row], isSelected: false)
-//        return cell
-//    }
-//    func collectionView(
-//          _ collectionView: UICollectionView,
-//          layout collectionViewLayout: UICollectionViewLayout,
-//          sizeForItemAt indexPath: IndexPath
-//      ) -> CGSize {
-//          return CGSize(width: 52, height: 52)
-//      }
-//
-//    let data: [String]
-//
-//
-//    init(data: [String]) {
-//        self.data = data
-//    }
-//
-//
-//    // Implement the required data source and delegate methods for your second collection view here
-//}
-
-
-//class MyViewController: UIViewController {
-//    @IBOutlet weak var collectionView1: UICollectionView!
-//    @IBOutlet weak var collectionView2: UICollectionView!
-//
-//
-//    override func viewDidLoad() {
-//        super.viewDidLoad()
-//
-//
-//        let dataForCollectionView1 = ["Item 1", "Item 2", "Item 3"]
-//        let dataForCollectionView2 = [1, 2, 3, 4, 5]
-//
-//
-//        // Set up the data source and delegate for the first collection view
-//        let collectionView1DataSource = CollectionView1DataSource(data: dataForCollectionView1)
-//        collectionView1.dataSource = collectionView1DataSource
-//        collectionView1.delegate = collectionView1DataSource
-//
-//
-//        // Set up the data source and delegate for the second collection view
-//        let collectionView2DataSource = CollectionView2DataSource(data: dataForCollectionView2)
-//        collectionView2.dataSource = collectionView2DataSource
-//        collectionView2.delegate = collectionView2DataSource
-//    }
-//}
