@@ -28,7 +28,6 @@
 		D58A5EAC298F19D600260AC8 /* ScheduleViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = D58A5EAB298F19D600260AC8 /* ScheduleViewCell.swift */; };
 		D58E01A329BE6ED900F5D4C2 /* Store.swift in Sources */ = {isa = PBXBuildFile; fileRef = D58E01A229BE6ED900F5D4C2 /* Store.swift */; };
 		D58E01A529BE73C200F5D4C2 /* TrackerStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = D58E01A429BE73C200F5D4C2 /* TrackerStore.swift */; };
-		D58E01A729BE73CD00F5D4C2 /* CategoryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = D58E01A629BE73CD00F5D4C2 /* CategoryStore.swift */; };
 		D58E01A929BE73E400F5D4C2 /* TrackerRecordStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = D58E01A829BE73E400F5D4C2 /* TrackerRecordStore.swift */; };
 		D58E01AB29BE772D00F5D4C2 /* TrackerCategoryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = D58E01AA29BE772D00F5D4C2 /* TrackerCategoryStore.swift */; };
 		D590AB5A29B26658001B760E /* EmojiCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = D590AB5929B26658001B760E /* EmojiCell.swift */; };
@@ -94,7 +93,6 @@
 		D58A5EAB298F19D600260AC8 /* ScheduleViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScheduleViewCell.swift; sourceTree = "<group>"; };
 		D58E01A229BE6ED900F5D4C2 /* Store.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Store.swift; sourceTree = "<group>"; };
 		D58E01A429BE73C200F5D4C2 /* TrackerStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackerStore.swift; sourceTree = "<group>"; };
-		D58E01A629BE73CD00F5D4C2 /* CategoryStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryStore.swift; sourceTree = "<group>"; };
 		D58E01A829BE73E400F5D4C2 /* TrackerRecordStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackerRecordStore.swift; sourceTree = "<group>"; };
 		D58E01AA29BE772D00F5D4C2 /* TrackerCategoryStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackerCategoryStore.swift; sourceTree = "<group>"; };
 		D590AB5929B26658001B760E /* EmojiCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmojiCell.swift; sourceTree = "<group>"; };
@@ -256,7 +254,6 @@
 				D58E01A229BE6ED900F5D4C2 /* Store.swift */,
 				D58E01A429BE73C200F5D4C2 /* TrackerStore.swift */,
 				D58E01AA29BE772D00F5D4C2 /* TrackerCategoryStore.swift */,
-				D58E01A629BE73CD00F5D4C2 /* CategoryStore.swift */,
 				D58E01A829BE73E400F5D4C2 /* TrackerRecordStore.swift */,
 			);
 			path = Store;
@@ -507,7 +504,6 @@
 				D5D3696F29901E9800B0D0F0 /* TrackerColor.swift in Sources */,
 				D5DC2D4C2985CD6C001F9D7B /* AppDelegate.swift in Sources */,
 				D532D3462988601000572A8A /* TabBarController.swift in Sources */,
-				D58E01A729BE73CD00F5D4C2 /* CategoryStore.swift in Sources */,
 				D58E01A929BE73E400F5D4C2 /* TrackerRecordStore.swift in Sources */,
 				D58A5EAC298F19D600260AC8 /* ScheduleViewCell.swift in Sources */,
 				D5116942298C5BA200D418EC /* TrackerCreationViewController.swift in Sources */,

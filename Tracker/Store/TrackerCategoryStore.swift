@@ -32,17 +32,21 @@ final class TrackerCategoryStore {
         print("____CD____addCATEGORY___1")
     }
 
-    func getAllCategories() -> [TrackerCategory] {
-            // Создаём запрос.
-            // Укажем, что хотим получить записи Author и ответ привести к типу Author.
+    func extractAllCategoriesAsArray() -> [TrackerCategory] {
             let request = NSFetchRequest<TrackerCategoryCD>(entityName: "TrackerCategoryCD")
-            // Выполняем запрос, используя контекст.
-            // В результате получаем массив объектов Author.
             let categoriesCD = try! context.fetch(request)
-            // Распечатаем в консоль имена и год автора.
+        print("====== = = = = = = = = categoties`cd = ", categoriesCD);
         let categories = categoriesCD.compactMap { TrackerCategory.fromCoreData($0, decoder: jsonDecoder) }
-        categories.forEach { print("категория из бд \($0.label ?? "пустое слово")") }
+//        categories.forEach { print("категория из бд \($0.label ?? "пустое слово")") }
         return categories
+    }
+
+    func extractCategoryById(id: UUID) -> TrackerCategoryCD? {
+        let request = NSFetchRequest<TrackerCategoryCD>(entityName: "TrackerCategoryCD")
+        request.predicate = NSPredicate(format: "%K == %@", "id", id as CVarArg)
+        request.fetchLimit = 1
+        
+        return try? context.fetch(request).first
     }
 }
 

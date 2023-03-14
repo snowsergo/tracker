@@ -10,8 +10,8 @@ final class TrackersViewController: UIViewController {
     private var searchText: String = ""
     private var isFiltered: Bool = false
 
-    private var trackerStore = TrackerStore()
-    private var trackerCategoryStore = TrackerCategoryStore()
+    private var store = Store()
+
     
     private let collectionView: UICollectionView = {
         let collectionView = UICollectionView(
@@ -35,8 +35,14 @@ final class TrackersViewController: UIViewController {
         super.viewDidLoad()
         setupNavBar()
         setupTabBar()
-        categories = trackerCategoryStore.getAllCategories()
-        visibleCategories = filteredData()
+        store.delegate = self
+        categories = store.categories
+        visibleCategories = store.categories
+        print("!!!0!0!0!0!0!0! result categories = ", categories)
+
+//        let trackers = store.trackerStore.extractAllTrackersAsArray()
+//        print("result trackers = ", trackers)
+//        visibleCategories = filteredData()
         setupCollectionView()
         setupPlaceHolders()
         updatePlaceholderVisibility()
@@ -157,21 +163,25 @@ final class TrackersViewController: UIViewController {
             assertionFailure("Can't find cell")
             return
         }
-        print("categories = ", categories)
-        print("indexPath = ", indexPath)
+//        print("categories = ", categories)
+//        print("indexPath = ", indexPath)
         let tracker = visibleCategories[indexPath.section].trackers[indexPath.row]
+        
+        guard let trackerCD = store.trackerStore.extractTrackerById(id: tracker.id) else {return}
+        try? store.trackerRecordStore.addNewRecord(tracker: trackerCD, date: currentDate)
+
         var completedTrackersForDay = completedTrackers[currentDate, default: []]
         completedTrackersForDay.insert(.init(trackerId: tracker.id, date: currentDate))
         completedTrackers[currentDate] = completedTrackersForDay
-        self.visibleCategories = self.filteredData()
-        self.collectionView.reloadData()
+//        self.visibleCategories = self.filteredData()
+//        self.collectionView.reloadData()
         updatePlaceholderVisibility()
     }
     
     @objc private func dateHandler(_ sender: UIDatePicker) {
         currentDate = sender.date
-        visibleCategories = filteredData()
-        collectionView.reloadData()
+//        visibleCategories = filteredData()
+//        collectionView.reloadData()
         updatePlaceholderVisibility()
     }
 
@@ -186,29 +196,32 @@ final class TrackersViewController: UIViewController {
         //
         //        }
         //        else {
-
-        if let i = categories.firstIndex(where: { $0.id == categoryId }) {
-            // do something with foo
-            var trackers = categories[i].trackers
-            trackers.append(newTracker)
-            let newCategory = TrackerCategory(label: categories[i].label, trackers: trackers)
-            self.categories[i] = newCategory
-        } else {
-            // item could not be found
-            let newCategory = TrackerCategory(
-                label: "Тестовая категория",
-                trackers: [newTracker]
-            )
-            self.categories.append(newCategory)
+        guard let categoryCD = store.trackerCategoryStore.extractCategoryById(id: categoryId) else {
+            return
         }
+       try? store.trackerStore.addNewTracker(newTracker, category: categoryCD)
+//        if let i = categories.firstIndex(where: { $0.id == categoryId }) {
+//            // do something with foo
+//            var trackers = categories[i].trackers
+//            trackers.append(newTracker)
+//            let newCategory = TrackerCategory(label: categories[i].label, trackers: trackers)
+//            self.categories[i] = newCategory
+//        } else {
+//            // item could not be found
+//            let newCategory = TrackerCategory(
+//                label: "Тестовая категория",
+//                trackers: [newTracker]
+//            )
+//            self.categories.append(newCategory)
+//        }
 
         //            var trackers = self.categories[0].trackers
         //            trackers.append(newTracker)
         //            let newCategory = TrackerCategory(label: self.categories[0].label, trackers: trackers)
         //            self.categories[0] = newCategory
         //        }
-        self.visibleCategories = self.filteredData()
-        self.collectionView.reloadData()
+//        self.visibleCategories = self.filteredData()
+//        self.collectionView.reloadData()
         self.updatePlaceholderVisibility()
     }
 
@@ -216,48 +229,27 @@ final class TrackersViewController: UIViewController {
     @objc
     private func addTracker() {
         let trackerSelect = TrackerSelectViewController(categories: categories, addingTrackerCompletion: addNewTracker, addingCategoryCompletion: addNewCategory)
-        //        { [weak self] newTracker in
-        //            guard let self else { return }
-        //            if self.categories.isEmpty {
-        //                let newCategory = TrackerCategory(
-        //                    label: "Тестовая категория",
-        //                    trackers: [newTracker]
-        //                )
-        //                self.categories = [newCategory]
-        //
-        //            }
-        //            else {
-        //                var trackers = self.categories[0].trackers
-        //                trackers.append(newTracker)
-        //                let newCategory = TrackerCategory(label: self.categories[0].label, trackers: trackers)
-        //                self.categories[0] = newCategory
-        //            }
-        //            self.visibleCategories = self.filteredData()
-        //            self.collectionView.reloadData()
-        //            self.updatePlaceholderVisibility()
-        //        }
         present(trackerSelect, animated: true)
     }
-    //добавление категории
-    //    @objc
-    //    private
+
+
     func addNewCategory(newCategory: TrackerCategory) {
-        print("добавляем категорию в главный список")
+        print("-------------добавляем категорию в главный список")
         //        let categoryCreationViewController = CategoryCreationViewController(){ [weak self] newCategory in
         //            guard let self else { return }
-        var categories = self.categories
-        categories.append(newCategory)
+//        var categories = self.categories
+//        categories.append(newCategory)
         do {
-            try trackerCategoryStore.addNewCategory(newCategory)
+            try store.trackerCategoryStore.addNewCategory(newCategory)
 
         }
         catch {
             print(error)
         }
 
-        self.categories = categories
-        self.visibleCategories = self.filteredData()
-        self.collectionView.reloadData()
+//        self.categories = categories
+//        self.visibleCategories = self.filteredData()
+//        self.collectionView.reloadData()
         self.updatePlaceholderVisibility()
         print("main-categories = ", categories);
         //        }
@@ -365,8 +357,8 @@ extension TrackersViewController: UISearchControllerDelegate {
     func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
         self.searchText = ""
         isFiltered = false
-        self.visibleCategories = filteredData()
-        self.collectionView.reloadData()
+//        self.visibleCategories = filteredData()
+//        self.collectionView.reloadData()
         updatePlaceholderVisibility()
     }
 }
@@ -376,47 +368,68 @@ extension TrackersViewController: UISearchBarDelegate {
         guard !searchText.isEmpty else {
             self.searchText = ""
             isFiltered = false
-            self.visibleCategories = filteredData()
-            self.collectionView.reloadData()
+//            self.visibleCategories = filteredData()
+//            self.collectionView.reloadData()
             return
         }
         self.searchText = searchText
         isFiltered = true
-        self.visibleCategories = filteredData()
-        self.collectionView.reloadData()
+//        self.visibleCategories = filteredData()
+//        self.collectionView.reloadData()
         updatePlaceholderVisibility()
     }
 }
 
 // filters date and text
-private extension TrackersViewController {
-    func filteredData() -> [TrackerCategory] {
-        guard let selectedWeekday = WeekDay(
-            rawValue: Calendar.current.component(.weekday, from: currentDate)
-        ) else { preconditionFailure("Weekday must be in range of 1...7") }
-        let emptySearch = searchText.isEmpty
-        var result = [] as [TrackerCategory]
-        categories.forEach { category in
-            let categoryIsInSearch = emptySearch || category.label.lowercased().contains(searchText)
-            
-            let filteredTrackers = category.trackers.filter { tracker in
-                let trackerIsInSearch = emptySearch || tracker.label.lowercased().contains(searchText)
-                let isForDate = tracker.schedule?.contains(selectedWeekday) ?? true
-                let isCompletedForDate = completedTrackers[currentDate]?.contains(
-                    .init(trackerId: tracker.id, date: currentDate)
-                ) ?? false
-                
-                return (categoryIsInSearch || trackerIsInSearch) && isForDate
-                && !isCompletedForDate
-            }
-            if !filteredTrackers.isEmpty {
-                let newFilteredCategory = TrackerCategory(
-                    label: category.label,
-                    trackers: filteredTrackers
+//private extension TrackersViewController {
+////    func filteredData() -> [TrackerCategory] {
+////        guard let selectedWeekday = WeekDay(
+////            rawValue: Calendar.current.component(.weekday, from: currentDate)
+////        ) else { preconditionFailure("Weekday must be in range of 1...7") }
+////        let emptySearch = searchText.isEmpty
+////        var result = [] as [TrackerCategory]
+////        categories.forEach { category in
+////            let categoryIsInSearch = emptySearch || category.label.lowercased().contains(searchText)
+////
+////            let filteredTrackers = category.trackers.filter { tracker in
+////                let trackerIsInSearch = emptySearch || tracker.label.lowercased().contains(searchText)
+////                let isForDate = tracker.schedule?.contains(selectedWeekday) ?? true
+////                let isCompletedForDate = completedTrackers[currentDate]?.contains(
+////                    .init(trackerId: tracker.id, date: currentDate)
+////                ) ?? false
+////
+////                return (categoryIsInSearch || trackerIsInSearch) && isForDate
+////                && !isCompletedForDate
+////            }
+////            if !filteredTrackers.isEmpty {
+////                let newFilteredCategory = TrackerCategory(
+////                    label: category.label,
+////                    trackers: filteredTrackers
+////                )
+////                result.append(newFilteredCategory)
+////            }
+////        }
+////        return result
+////    }
+//}
+
+extension TrackersViewController: StoreDelegate {
+    func store(_ store: Store, didUpdate update: StoreUpdate) {
+        visibleCategories = store.categories
+        categories = store.categories
+        collectionView.performBatchUpdates {
+            let insertedIndexPaths = update.insertedIndexes.map { IndexPath(item: $0, section: 0) }
+            let deletedIndexPaths = update.deletedIndexes.map { IndexPath(item: $0, section: 0) }
+            let updatedIndexPaths = update.updatedIndexes.map { IndexPath(item: $0, section: 0) }
+            collectionView.insertItems(at: insertedIndexPaths)
+            collectionView.insertItems(at: deletedIndexPaths)
+            collectionView.insertItems(at: updatedIndexPaths)
+            for move in update.movedIndexes {
+                collectionView.moveItem(
+                    at: IndexPath(item: move.oldIndex, section: 0),
+                    to: IndexPath(item: move.newIndex, section: 0)
                 )
-                result.append(newFilteredCategory)
             }
         }
-        return result
     }
 }
