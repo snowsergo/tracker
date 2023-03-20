@@ -26,16 +26,16 @@ final class TrackerCategoryStore {
 
     func updateExistingCategory(_ trackerCategoryCoreData: TrackerCategoryCD, with category: TrackerCategory) {
         trackerCategoryCoreData.label = category.label
-        trackerCategoryCoreData.id = UUID()
+        trackerCategoryCoreData.id = category.id
         trackerCategoryCoreData.createdAt = Date()
-//        trackerCategoryCoreData.trackers = []
+        trackerCategoryCoreData.trackers = []
         print("____CD____addCATEGORY___1")
     }
 
     func extractAllCategoriesAsArray() -> [TrackerCategory] {
             let request = NSFetchRequest<TrackerCategoryCD>(entityName: "TrackerCategoryCD")
             let categoriesCD = try! context.fetch(request)
-        print("====== = = = = = = = = categoties`cd = ", categoriesCD);
+//        print("====== = = = = = = = = categoties`cd = ", categoriesCD);
         let categories = categoriesCD.compactMap { TrackerCategory.fromCoreData($0, decoder: jsonDecoder) }
 //        categories.forEach { print("категория из бд \($0.label ?? "пустое слово")") }
         return categories

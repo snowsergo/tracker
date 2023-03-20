@@ -194,14 +194,14 @@ final class TrackerCreationViewController: UIViewController{
 //        let contentRect: CGRect = emojiCollectionView.subviews.reduce(into: .zero) { rect, view in
 //            rect = rect.union(view.frame)
 //        }
-        print(emojiCollectionView.subviews)
+//        print(emojiCollectionView.subviews)
 
         let height = emojiCollectionView.systemLayoutSizeFitting(
             CGSize(width: emojiCollectionView.bounds.width, height: 0),
             withHorizontalFittingPriority: .required,
             verticalFittingPriority: .defaultLow
         ).height
-        print("height = ", height)
+//        print("height = ", height)
         NSLayoutConstraint.activate([
             emojiCollectionView.heightAnchor.constraint(equalToConstant: 220),
             emojiCollectionView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),

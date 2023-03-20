@@ -103,7 +103,7 @@ extension CategoryViewController: UITableViewDelegate {
 
         let category = categories[indexPath.row]
         selectedCategory = category
-        print("выбрали категорию")
+//        print("выбрали категорию")
         //        delegate.addCategory(category)
         completion(category);
         self.tableView.reloadData()

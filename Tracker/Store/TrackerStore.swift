@@ -20,23 +20,24 @@ final class TrackerStore {
         let TrackerCoreData = TrackerCD(context: context)
         updateExistingTracker(TrackerCoreData, with: newTracker, category: category)
         try context.save()
-        print("____CD____addTracker___2")
+//        print("____CD____addTracker___2")
     }
 
     func updateExistingTracker(_ trackerCoreData: TrackerCD, with tracker: Tracker, category: TrackerCategoryCD) {
         trackerCoreData.emoji = tracker.emoji
         trackerCoreData.color = tracker.color
         trackerCoreData.label = tracker.label
-        trackerCoreData.id = UUID()
+        trackerCoreData.id = tracker.id
         trackerCoreData.createdAt = Date()
         trackerCoreData.category = category
 
         if let schedule = tracker.schedule {
             trackerCoreData.schedule = try? jsonEncoder.encode(schedule)
         }
-        print("____CD____addTracker___1")
+//        print("____CD____addTracker___1")
     }
     func extractTrackerById(id: UUID) -> TrackerCD? {
+        print("id = ", id);
         let request = NSFetchRequest<TrackerCD>(entityName: "TrackerCD")
         request.predicate = NSPredicate(format: "%K == %@", "id", id as CVarArg)
         request.fetchLimit = 1

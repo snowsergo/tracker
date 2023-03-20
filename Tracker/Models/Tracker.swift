@@ -1,18 +1,26 @@
 import Foundation
 
 struct Tracker {
-    let id = UUID()
+    let id: UUID
     let label: String
     let emoji: String
     let color: String
     let schedule: Set<WeekDay>?
-}
 
+    init(id: UUID = UUID(), label: String, emoji: String, color: String, schedule: Set<WeekDay>? ) {
+        self.id = id
+        self.label = label
+        self.emoji = emoji
+        self.color = color
+        self.schedule = schedule
+
+    }
+}
 
 extension Tracker {
     static func fromCoreData(_ data: TrackerCD, decoder: JSONDecoder) -> Tracker? {
         guard
-//            let id = data.id,
+            let id = data.id,
             let label = data.label,
             let emoji = data.emoji,
             let color = data.color
@@ -25,6 +33,6 @@ extension Tracker {
             schedule = try? decoder.decode(Set<WeekDay>.self, from: scheduleData)
         }
 
-        return .init(label: label, emoji: emoji, color: color, schedule: schedule)
+        return .init(id: id, label: label, emoji: emoji, color: color, schedule: schedule)
     }
 }

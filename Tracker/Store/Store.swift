@@ -1,38 +1,22 @@
 import UIKit
 import CoreData
 
-struct StoreUpdate {
-    struct Move: Hashable {
-        let oldIndex: Int
-        let newIndex: Int
-    }
-    let insertedIndexes: IndexSet
-    let deletedIndexes: IndexSet
-    let updatedIndexes: IndexSet
-    let movedIndexes: Set<Move>
-}
-
 protocol StoreDelegate: AnyObject {
-    func store(
-        _ store: Store,
-        didUpdate update: StoreUpdate
-    )
+    func didUpdate()
 }
-
-
 
 final class Store: NSObject {
     private let context: NSManagedObjectContext
-    private var fetchedResultsController: NSFetchedResultsController<TrackerCategoryCD>!
+//    private var fetchedResultsController: NSFetchedResultsController<TrackerCategoryCD>!
     weak var delegate: StoreDelegate?
-
+    let calendar = Calendar.current
     var trackerStore = TrackerStore()
     var trackerCategoryStore = TrackerCategoryStore()
     var trackerRecordStore = TrackerRecordStore()
-    private var insertedIndexes: IndexSet?
-    private var deletedIndexes: IndexSet?
-    private var updatedIndexes: IndexSet?
-    private var movedIndexes: Set<StoreUpdate.Move>?
+
+    var currentDate: Date = Date()
+    var searchText: String = ""
+    var isFiltered: Bool = false
 
     private lazy var jsonEncoder = JSONEncoder()
     private lazy var jsonDecoder = JSONDecoder()
@@ -42,17 +26,64 @@ final class Store: NSObject {
         try! self.init(context: context)
     }
 
-//    private lazy var resultController: NSFetchedResultsController<TrackerCategoryCD> = {
-//        let fetchRequest = NSFetchRequest<TrackerCategoryCD>(entityName: "TrackerCategoryCD")
-//        fetchRequest.sortDescriptors = [NSSortDescriptor(key: "createdAt", ascending: false)]
-//        let fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest,
-//                                                                  managedObjectContext: context,
-//                                                                  sectionNameKeyPath: nil,
-//                                                                  cacheName: nil)
-//        fetchedResultsController.delegate = self
-//        try? fetchedResultsController.performFetch()
-//        return fetchedResultsController
-//    }()
+//    func filteredData() -> [TrackerCategory] {
+//        guard let selectedWeekday = WeekDay(
+//            rawValue: Calendar.current.component(.weekday, from: currentDate)
+//        ) else { preconditionFailure("Weekday must be in range of 1...7") }
+//        let emptySearch = searchText.isEmpty
+//        var result = [] as [TrackerCategory]
+//        store.categories.forEach { category in
+//            let categoryIsInSearch = emptySearch || category.label.lowercased().contains(searchText)
+//
+//            let filteredTrackers = category.trackers.filter { tracker in
+//                let trackerIsInSearch = emptySearch || tracker.label.lowercased().contains(searchText)
+//                let isForDate = tracker.schedule?.contains(selectedWeekday) ?? true
+//                let isCompletedForDate = completedTrackers[currentDate]?.contains(
+//                    .init(trackerId: tracker.id, date: currentDate)
+//                ) ?? false
+//
+//                return (categoryIsInSearch || trackerIsInSearch) && isForDate
+//                && !isCompletedForDate
+//            }
+//            if !filteredTrackers.isEmpty {
+//                let newFilteredCategory = TrackerCategory(
+//                    label: category.label,
+//                    trackers: filteredTrackers
+//                )
+//                result.append(newFilteredCategory)
+//            }
+//        }
+//        return result
+//    }
+
+//    request.predicate = NSPredicate(format: "%K.%K == %@ AND %K < %ld",
+//                  // Книга с автором из США: author.country == USA
+//                  #keyPath(Book.author), #keyPath(Author.country), "USA",
+//                  // Книга выпущена до 1990: year < 1990
+//                  #keyPath(Book.year), 1990)
+
+//    request.predicate = NSPredicate(format: "%K CONTAINS[n] %@", #keyPath(Book.title), "Harry")
+    private lazy var fetchedResultsController: NSFetchedResultsController<TrackerCategoryCD> = {
+//        let calendar = Calendar.current
+//        let today = Date()
+//        let startOfDay = calendar.startOfDay(for: today)
+//        let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay)
+
+        let fetchRequest = NSFetchRequest<TrackerCategoryCD>(entityName: "TrackerCategoryCD")
+        fetchRequest.sortDescriptors = [NSSortDescriptor(key: "createdAt", ascending: false)]
+//        fetchRequest.predicate = NSPredicate(format: "SUBQUERY(trackers, $tracker, NOT (ANY $tracker.records.date >= %@ AND $tracker.records.date < %@)).@count > 0", startOfDay as NSDate, endOfDay! as NSDate)
+        fetchRequest.predicate = NSPredicate(format: "trackers.@count == 100")
+
+//                fetchRequest.predicate = NSPredicate(format: "records.@count == 0")
+        let fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest,
+                                                                  managedObjectContext: context,
+                                                                  sectionNameKeyPath: nil,
+                                                                  cacheName: nil)
+        fetchedResultsController.delegate = self
+        try? fetchedResultsController.performFetch()
+        print("_______________обновляем запрос_________")
+        return fetchedResultsController
+    }()
 
 
     init(context: NSManagedObjectContext) throws {
@@ -75,55 +106,52 @@ final class Store: NSObject {
 
     var categories: [TrackerCategory] {
         guard
-        let categoriesCD = self.fetchedResultsController.fetchedObjects
+        let categoriesCD = fetchedResultsController.fetchedObjects
+
         else { return [] }
+        print("categoriesCD = = = = ",categoriesCD)
         let result = categoriesCD.compactMap{ TrackerCategory.fromCoreData($0, decoder: jsonDecoder) }
-        print("___cat = ",result)
-        return result
+//        print("___cat = ",result)
+        return filteredData(categories: result)
     }
+
+    func filteredData(categories: [TrackerCategory]) -> [TrackerCategory] {
+            guard let selectedWeekday = WeekDay(
+                rawValue: Calendar.current.component(.weekday, from: currentDate)
+            ) else { preconditionFailure("Weekday must be in range of 1...7") }
+            let emptySearch = searchText.isEmpty
+            var result = [] as [TrackerCategory]
+            categories.forEach { category in
+                let categoryIsInSearch = emptySearch || category.label.lowercased().contains(searchText)
+
+                let filteredTrackers = category.trackers.filter { tracker in
+                    let trackerIsInSearch = emptySearch || tracker.label.lowercased().contains(searchText)
+                    let isForDate = tracker.schedule?.contains(selectedWeekday) ?? true
+
+//                    let isCompletedForDate = completedTrackers[currentDate]?.contains(
+//                        .init(trackerId: tracker.id, date: currentDate)
+//                    ) ?? false
+
+                    return (categoryIsInSearch || trackerIsInSearch) && isForDate
+//                    && !isCompletedForDate
+                }
+                if !filteredTrackers.isEmpty {
+                    let newFilteredCategory = TrackerCategory(
+                        label: category.label,
+                        trackers: filteredTrackers
+                    )
+                    result.append(newFilteredCategory)
+                }
+            }
+            return result
+        }
 }
 
 // MARK: - NSFetchedResultsControllerDelegate
 extension Store: NSFetchedResultsControllerDelegate {
-    func controllerWillChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
-        insertedIndexes = IndexSet()
-        deletedIndexes = IndexSet()
-        updatedIndexes = IndexSet()
-        movedIndexes = Set<StoreUpdate.Move>()
-    }
+    func controllerWillChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {}
 
     func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
-        delegate?.store(
-            self,
-            didUpdate: StoreUpdate(
-                insertedIndexes: insertedIndexes!,
-                deletedIndexes: deletedIndexes!,
-                updatedIndexes: updatedIndexes!,
-                movedIndexes: movedIndexes!
-            )
-        )
-        insertedIndexes = nil
-        deletedIndexes = nil
-        updatedIndexes = nil
-        movedIndexes = nil
-    }
-
-    func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange anObject: Any, at indexPath: IndexPath?, for type: NSFetchedResultsChangeType, newIndexPath: IndexPath?) {
-        switch type {
-        case .insert:
-            guard let indexPath = newIndexPath else { fatalError() }
-            insertedIndexes?.insert(indexPath.item)
-        case .delete:
-            guard let indexPath = indexPath else { fatalError() }
-            deletedIndexes?.insert(indexPath.item)
-        case .update:
-            guard let indexPath = indexPath else { fatalError() }
-            updatedIndexes?.insert(indexPath.item)
-        case .move:
-            guard let oldIndexPath = indexPath, let newIndexPath = newIndexPath else { fatalError() }
-            movedIndexes?.insert(.init(oldIndex: oldIndexPath.item, newIndex: newIndexPath.item))
-        @unknown default:
-            fatalError()
-        }
+        delegate?.didUpdate()
     }
 }
