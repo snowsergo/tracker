@@ -13,10 +13,6 @@ final class CategoryViewCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
 
-//    func setOn(_ isOn: Bool) {
-//        self.isOn = isOn
-//    }
-
     private lazy var iconView: UIImageView = {
         let view = UIImageView()
 
@@ -26,17 +22,11 @@ final class CategoryViewCell: UITableViewCell {
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
-//    func setOn(_ isOn: Bool) {
-//        if(isOn){
-//            setupIsSelected()
-//        }
-//    }
 
     func configure(label: String? = nil, isOn: Bool = false, type: CornerCellType? = nil) {
         labelView.text = label
 
         self.isOn = isOn
-//        setOn(isOn)
 
         backView.layer.maskedCorners = type == .first
             ? [.layerMinXMinYCorner, .layerMaxXMinYCorner]
@@ -52,15 +42,6 @@ final class CategoryViewCell: UITableViewCell {
     override func prepareForReuse() {
         configure()
     }
-
-//    private lazy var toggleView: UISwitch = {
-//        let toggle = UISwitch()
-//
-//        toggle.onTintColor = .asset(.blue)
-//
-//        toggle.translatesAutoresizingMaskIntoConstraints = false
-//        return toggle
-//    }()
 
     private lazy var labelView: UILabel = {
         let label = UILabel()
@@ -95,7 +76,6 @@ private extension CategoryViewCell {
         selectionStyle = .none
 
         addSubview(labelView)
-//        addSubview(iconView)
         insertSubview(backView, at: 0)
 
         NSLayoutConstraint.activate([
@@ -107,8 +87,6 @@ private extension CategoryViewCell {
             labelView.leadingAnchor.constraint(equalTo: backView.leadingAnchor, constant: 16),
             labelView.topAnchor.constraint(equalTo: topAnchor, constant: 26.5),
             labelView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -26.5),
-//            iconView.centerYAnchor.constraint(equalTo: centerYAnchor),
-//            iconView.trailingAnchor.constraint(equalTo: backView.trailingAnchor, constant: -16)
         ])
 
         if (self.isOn){
@@ -118,20 +96,5 @@ private extension CategoryViewCell {
                 iconView.trailingAnchor.constraint(equalTo: backView.trailingAnchor, constant: -16)
             ])
         }
-//        else {
-//            iconView.removeFromSuperview()
-//        }
-
     }
-
-//    func setupIsSelected(){
-////        print("set Selected",is);
-//        if (isOn){
-//            addSubview(iconView)
-//            NSLayoutConstraint.activate([
-//                iconView.centerYAnchor.constraint(equalTo: centerYAnchor),
-//                iconView.trailingAnchor.constraint(equalTo: backView.trailingAnchor, constant: -16)
-//            ])
-//        }
-//    }
 }

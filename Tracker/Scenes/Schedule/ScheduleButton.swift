@@ -44,7 +44,6 @@ final class ScheduleButton: UIButton {
     private lazy var titleView: UILabel = {
         let label = UILabel()
 
-//        label.font = .asset(.ysDisplayRegular, size: 17)
         label.textColor = .asset(.black)
 
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -53,10 +52,7 @@ final class ScheduleButton: UIButton {
 
     private lazy var subtitleView: UILabel = {
         let label = UILabel()
-
-//        label.font = .asset(.ysDisplayRegular, size: 17)
         label.textColor = .asset(.grey)
-
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -65,7 +61,6 @@ final class ScheduleButton: UIButton {
         let view = UIImageView()
 
         view.image = UIImage(named: "arrow")?.withTintColor(.asset(.grey))
-//        view.tintColor = .asset(.gray)
 
         view.translatesAutoresizingMaskIntoConstraints = false
         return view

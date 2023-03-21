@@ -9,7 +9,6 @@ struct TrackerRecord: Hashable {
         self.id = id
         self.trackerId = trackerId
         self.date = date
-//        self.tracker = tracker
     }
 }
 

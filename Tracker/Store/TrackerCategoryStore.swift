@@ -3,7 +3,6 @@ import CoreData
 
 final class TrackerCategoryStore {
     private let context: NSManagedObjectContext
-//    private let uiColorMarshalling = UIColorMarshalling()
     private lazy var jsonEncoder = JSONEncoder()
     private lazy var jsonDecoder = JSONDecoder()
     
@@ -20,8 +19,6 @@ final class TrackerCategoryStore {
         let TrackerCategoryCoreData = TrackerCategoryCD(context: context)
         updateExistingCategory(TrackerCategoryCoreData, with: newCategory)
         try context.save()
-        print("____CD____addCATEGORY___2")
-
     }
 
     func updateExistingCategory(_ trackerCategoryCoreData: TrackerCategoryCD, with category: TrackerCategory) {
@@ -29,15 +26,12 @@ final class TrackerCategoryStore {
         trackerCategoryCoreData.id = category.id
         trackerCategoryCoreData.createdAt = Date()
         trackerCategoryCoreData.trackers = []
-        print("____CD____addCATEGORY___1")
     }
 
     func extractAllCategoriesAsArray() -> [TrackerCategory] {
-            let request = NSFetchRequest<TrackerCategoryCD>(entityName: "TrackerCategoryCD")
-            let categoriesCD = try! context.fetch(request)
-//        print("====== = = = = = = = = categoties`cd = ", categoriesCD);
+        let request = NSFetchRequest<TrackerCategoryCD>(entityName: "TrackerCategoryCD")
+        let categoriesCD = try! context.fetch(request)
         let categories = categoriesCD.compactMap { TrackerCategory.fromCoreData($0, decoder: jsonDecoder) }
-//        categories.forEach { print("категория из бд \($0.label ?? "пустое слово")") }
         return categories
     }
 

@@ -24,8 +24,6 @@ extension Tracker {
             let label = data.label,
             let emoji = data.emoji,
             let color = data.color
-//            let hex = data.colorHex,
-//            let color = TrackerColor(rawValue: hex)
         else { return nil }
 
         var schedule: Set<WeekDay>?
