@@ -2,38 +2,27 @@ import UIKit
 import CoreData
 
 final class TrackerRecordStore {
-    private let context: NSManagedObjectContext
-    private lazy var jsonEncoder = JSONEncoder()
-    private lazy var jsonDecoder = JSONDecoder()
-    convenience init() {
-        let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
-        self.init(context: context)
-    }
+    var store: Store
 
-    init(context: NSManagedObjectContext) {
-        self.context = context
+    init(store:Store) {
+        self.store = store
     }
 
     func addNewRecord(tracker: TrackerCD, date: Date) throws {
-        let trackerRecordCoreData = TrackerRecordCD(context: context)
-        updateExistingTrackerRecord(trackerRecordCoreData, tracker: tracker, date: date)
-        try context.save()
+        try store.addNewRecord(tracker: tracker, date: date)
     }
 
-    func updateExistingTrackerRecord(_ trackerRecordCoreData: TrackerRecordCD,tracker: TrackerCD, date: Date) {
-        trackerRecordCoreData.tracker = tracker
-        let calendar = Calendar.current
-        let startOfDay = calendar.startOfDay(for: date)
-        trackerRecordCoreData.date = startOfDay
-        trackerRecordCoreData.id = UUID()
-        trackerRecordCoreData.createdAt = Date()
+
+    func deleteRecord(tracker: TrackerCD, date: Date) throws {
+        try store.deleteRecord(tracker: tracker, date: date)
     }
 
-    func extractAllRecordsAsArray() -> [TrackerRecord] {
-        let request = NSFetchRequest<TrackerRecordCD>(entityName: "TrackerRecordCD")
-        let recordsCD = try! context.fetch(request)
-        let records = recordsCD.compactMap { TrackerRecord.fromCoreData($0) }
-        return records
+    func extractAllRecordsAsArray() -> [TrackerRecord]  {
+        store.extractAllRecordsAsArray()
+    }
+
+    func extractRecordByTrackerIdAndDate(id: UUID, date: Date) -> TrackerRecordCD? {
+        store.extractRecordByTrackerIdAndDate(id: id, date: date)
     }
 }
 

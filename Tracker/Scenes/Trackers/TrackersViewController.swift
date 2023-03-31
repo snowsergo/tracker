@@ -8,9 +8,11 @@ final class TrackersViewController: UIViewController {
     private let datePicker: UIDatePicker = UIDatePicker()
     private var searchText: String = ""
     private var isFiltered: Bool = false
-
-    private var store = Store()
-
+    
+    private var store: Store
+    private var trackersStore: TrackerStore
+    private var categoriesStore: TrackerCategoryStore
+    private var trackerRecordsStore: TrackerRecordStore
     
     private let collectionView: UICollectionView = {
         let collectionView = UICollectionView(
@@ -30,21 +32,33 @@ final class TrackersViewController: UIViewController {
         return collectionView
     }()
     
+    init(store: Store) {
+        self.store = store
+        categoriesStore = TrackerCategoryStore(store: store)
+        trackersStore = TrackerStore(store: store)
+        trackerRecordsStore = TrackerRecordStore(store: store)
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         setupNavBar()
         setupTabBar()
         store.delegate = self
         categories = store.categories
-        allCategories = store.trackerCategoryStore.extractAllCategoriesAsArray()
+        allCategories = categoriesStore.extractAllCategoriesAsArray()
         setupCollectionView()
         setupPlaceHolders()
         updatePlaceholderVisibility()
         view.backgroundColor = .white
     }
-
-
-
+    
+    
+    
     //настройка навбара сверху
     private func setupNavBar() {
         if let navBar = navigationController?.navigationBar {
@@ -74,19 +88,19 @@ final class TrackersViewController: UIViewController {
         self.navigationItem.searchController = search
         
     }
-
+    
     func updatePlaceholderVisibility() {
         let viewIsEmpty = categories.count == 0
         let haveNoTrackers = categories.filter({ $0.trackers.count > 0 }).count == 0
-
+        
         UIView.animate(withDuration: 0.25) { [weak self] in
             guard let self else { return }
-
+            
             self.startPlaceholderView.alpha = viewIsEmpty && haveNoTrackers ? 1 : 0
             self.emptyPlaceholderView.alpha = viewIsEmpty && !haveNoTrackers ? 1 : 0
         }
     }
-
+    
     //настройка таббара снзу
     private func setupTabBar(){
         if let tabBar = tabBarController?.tabBar {
@@ -99,12 +113,12 @@ final class TrackersViewController: UIViewController {
             ]
         }
     }
-
-
+    
+    
     private func setupPlaceHolders(){
         view.addSubview(startPlaceholderView)
         view.addSubview(emptyPlaceholderView)
-
+        
         NSLayoutConstraint.activate([
             startPlaceholderView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
             startPlaceholderView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
@@ -117,23 +131,23 @@ final class TrackersViewController: UIViewController {
             message: "Что будем отслеживать?",
             icon: .trackerStartPlaceholder
         )
-
+        
         view.alpha = 0
-
+        
         return view
     }()
-
+    
     private lazy var emptyPlaceholderView: UIView = {
         let view = UIView.placeholderView(
             message: "Ничего не найдено",
             icon: .trackerEmptyPlaceholder
         )
-
+        
         view.alpha = 0
-
+        
         return view
     }()
-
+    
     private lazy var addButton: UIBarButtonItem = {
         let addIcon = UIImage(
             systemName: "plus",
@@ -157,10 +171,16 @@ final class TrackersViewController: UIViewController {
             return
         }
         let tracker = categories[indexPath.section].trackers[indexPath.row]
-        guard let trackerCD = store.trackerStore.extractTrackerById(id: tracker.id) else {
+        let isCompleted = tracker.isCompleted
+        guard let trackerCD = trackersStore.extractTrackerById(id: tracker.id) else {
             return
         }
-        try? store.trackerRecordStore.addNewRecord(tracker: trackerCD, date: store.currentDate)
+        if isCompleted == true {
+            try? trackerRecordsStore.deleteRecord(tracker: trackerCD, date: store.currentDate)
+        } else {
+            try? trackerRecordsStore.addNewRecord(tracker: trackerCD, date: store.currentDate)
+        }
+        
         didUpdate()
         updatePlaceholderVisibility()
     }
@@ -170,32 +190,27 @@ final class TrackersViewController: UIViewController {
         didUpdate()
         updatePlaceholderVisibility()
     }
-
-
+    
+    
     func addNewTracker(newTracker: Tracker, categoryId: UUID) {
-        guard let categoryCD = store.trackerCategoryStore.extractCategoryById(id: categoryId) else {
+        guard let categoryCD = categoriesStore.extractCategoryById(id: categoryId) else {
             return
         }
-        try? store.trackerStore.addNewTracker(newTracker, category: categoryCD)
+        trackersStore.addNewTracker(newTracker, category: categoryCD)
         self.didUpdate()
         self.updatePlaceholderVisibility()
     }
-
+    
     //добавление трекера
     @objc
     private func addTracker() {
         let trackerSelect = TrackerSelectViewController(categories: allCategories, addingTrackerCompletion: addNewTracker, addingCategoryCompletion: addNewCategory)
         present(trackerSelect, animated: true)
     }
-
-
+    
+    
     func addNewCategory(newCategory: TrackerCategory) {
-        do {
-            try store.trackerCategoryStore.addNewCategory(newCategory)
-        }
-        catch {
-            print(error)
-        }
+        categoriesStore.addNewCategory(newCategory)
         self.didUpdate()
         self.updatePlaceholderVisibility()
     }
@@ -307,24 +322,23 @@ extension TrackersViewController: UISearchControllerDelegate {
 
 extension TrackersViewController: UISearchBarDelegate {
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-        guard !searchText.isEmpty else {
+        if searchText.isEmpty {
             store.searchText = ""
             store.isFiltered = false
-            didUpdate()
-            updatePlaceholderVisibility()
-            return
+        } else {
+            store.searchText = searchText
+            isFiltered = true
         }
-        store.searchText = searchText
-        isFiltered = true
         didUpdate()
         updatePlaceholderVisibility()
+        
     }
 }
-
 
 extension TrackersViewController: StoreDelegate {
     func didUpdate() {
         categories = store.categories
+        allCategories = categoriesStore.extractAllCategoriesAsArray()
         collectionView.reloadData()
     }
 }

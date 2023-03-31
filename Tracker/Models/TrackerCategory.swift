@@ -17,7 +17,7 @@ extension TrackerCategory {
         guard let id = data.id, let label = data.label else { return nil }
         
         let trackersCD = data.trackers as? Set<TrackerCD> ?? []
-        let trackers = trackersCD.compactMap { Tracker.fromCoreData($0, decoder: decoder) }
+        let trackers = trackersCD.compactMap { Tracker.fromCoreData($0, decoder: decoder, isCompleted: nil, recordsCount: nil) }
         
         return .init(id: id, label: label, trackers: trackers)
     }

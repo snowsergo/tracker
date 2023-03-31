@@ -3,8 +3,10 @@ import UIKit
 final class CategoryCreationViewController: UIViewController{
     weak var delegate: TrackersViewController?
     private let completion: (TrackerCategory) -> Void
+    private let categoryNames: [String]
     
-    init(completion: @escaping (TrackerCategory) -> Void){
+    init(categories: [TrackerCategory], completion: @escaping (TrackerCategory) -> Void){
+        self.categoryNames = categories.map { $0.label }
         self.completion = completion
         super.init(nibName: nil, bundle: nil)
     }
@@ -13,7 +15,8 @@ final class CategoryCreationViewController: UIViewController{
         fatalError("init(coder:) has not been implemented")
     }
     
-    private let labelView: UILabel = UILabel();
+    private let labelView: UILabel = UILabel()
+    private let errorLabelView: UILabel = UILabel()
     private let textField: UITextField = UITextField()
     private let submitButton = UIButton(frame: CGRect(x: 100, y: 100, width: 100, height: 50))
     private let cancelButton = UIButton(frame: CGRect(x: 100, y: 100, width: 100, height: 50))
@@ -25,22 +28,29 @@ final class CategoryCreationViewController: UIViewController{
     }
     
     private func setupAppearance() {
-        
         labelView.translatesAutoresizingMaskIntoConstraints = false
+        errorLabelView.translatesAutoresizingMaskIntoConstraints = false
         textField.translatesAutoresizingMaskIntoConstraints = false
         submitButton.translatesAutoresizingMaskIntoConstraints = false
         cancelButton.translatesAutoresizingMaskIntoConstraints = false
         
         view.addSubview(labelView)
         view.addSubview(textField)
+        view.addSubview(errorLabelView)
         NSLayoutConstraint.activate([
             textField.topAnchor.constraint(equalTo: labelView.bottomAnchor, constant: 50),
             textField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             textField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
-            textField.heightAnchor.constraint(equalToConstant: 75)
+            textField.heightAnchor.constraint(equalToConstant: 75),
+            errorLabelView.topAnchor.constraint(equalTo: textField.bottomAnchor,constant: 16),
+            errorLabelView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
         ])
         textField.placeholder = "Введите название категории"
+        errorLabelView.text = "Категория с таким именем уже существует"
         textField.font = .asset(.ysDisplayRegular, size: 17)
+        errorLabelView.font = .asset(.ysDisplayRegular, size: 14)
+        errorLabelView.textColor = UIColor.asset(.red)
+        errorLabelView.isHidden = true
         let paddingLeft = UIView(frame: .init(origin: .zero, size: .init(width: 16, height: 1)))
         textField.leftViewMode = .always
         textField.leftView = paddingLeft
@@ -90,16 +100,22 @@ final class CategoryCreationViewController: UIViewController{
     }
     
     func updateButtonStatus() {
-        let isInputOK = textField.text != nil && textField.text != ""
-        if isInputOK {
-            submitButton.isEnabled = true
-            submitButton.backgroundColor = .asset(.black)
-        } else {
+        guard let name = textField.text, !name.isEmpty else {
             submitButton.isEnabled = false
             submitButton.backgroundColor = .asset(.grey)
+            return
+        }
+
+        if categoryNames.contains(name) {
+            submitButton.isEnabled = false
+            submitButton.backgroundColor = .asset(.grey)
+            errorLabelView.isHidden = false
+        } else {
+            submitButton.isEnabled = true
+            submitButton.backgroundColor = .asset(.black)
+            errorLabelView.isHidden = true
         }
     }
-    
     @objc
     private func cancelCreation() {
         self.view.window!.rootViewController?.dismiss(animated: false, completion: nil)

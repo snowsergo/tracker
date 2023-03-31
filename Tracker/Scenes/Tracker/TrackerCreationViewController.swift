@@ -220,7 +220,8 @@ final class TrackerCreationViewController: UIViewController{
         let isCategoryOk = selectedCategory != nil
         let isEmojiOk = selectedEmoji != nil
         let isColorOk = selectedColor != nil
-        if isScheduleOK && isInputOK && isCategoryOk && isEmojiOk && isColorOk {
+        let isEnabledContinue = isScheduleOK && isInputOK && isCategoryOk && isEmojiOk && isColorOk
+        if isEnabledContinue {
             submitButton.isEnabled = true
             submitButton.backgroundColor = .asset(.black)
         } else {
@@ -315,7 +316,9 @@ private extension TrackerCreationViewController {
             label: text,
             emoji: emoji,
             color: color,
-            schedule: isRegular ? days : nil
+            schedule: isRegular ? days : nil,
+            isCompleted: nil,
+            recordsCount: nil
         )
         guard let categoryId = selectedCategory?.id else { return }
         completion(newTracker, categoryId)

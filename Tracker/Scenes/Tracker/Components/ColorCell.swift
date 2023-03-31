@@ -41,14 +41,10 @@ final class ColorCell: UICollectionViewCell {
         colorView.backgroundColor = UIColor(hex: color + "ff")
         
         if isSelected {
-            //            addSubview(background)
             background.layer.borderWidth = 3
             
         } else {
             background.layer.borderWidth = 0
-            //            background.backgroundColor = .asset(.white)
-            ////            superview.removeArrangedSubview(background)
-            //            removeFromSuperview(background)
         }
     }
     

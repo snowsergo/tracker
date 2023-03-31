@@ -9,10 +9,7 @@ final class Store: NSObject {
     private let context: NSManagedObjectContext
     weak var delegate: StoreDelegate?
     let calendar = Calendar.current
-    var trackerStore = TrackerStore()
-    var trackerCategoryStore = TrackerCategoryStore()
-    var trackerRecordStore = TrackerRecordStore()
-
+    
     var currentDate: Date = Date()
     var searchText: String = ""
     var isFiltered: Bool = false
@@ -37,8 +34,16 @@ final class Store: NSObject {
     }()
 
 
-    init(context: NSManagedObjectContext) throws {
-        self.context = context
+    init(context: NSManagedObjectContext? = nil) throws {
+        if let context {
+            self.context = context
+        } else {
+            guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
+                preconditionFailure("Something went terribly wrong")
+            }
+
+            self.context = appDelegate.persistentContainer.viewContext
+        }
         super.init()
 
         let fetchRequest = TrackerCD.fetchRequest()
@@ -46,7 +51,7 @@ final class Store: NSObject {
 
         let controller = NSFetchedResultsController(
             fetchRequest: fetchRequest,
-            managedObjectContext: context,
+            managedObjectContext: self.context,
             sectionNameKeyPath: nil,
             cacheName: nil
         )
@@ -58,16 +63,14 @@ final class Store: NSObject {
     var categories: [TrackerCategory] {
 
         do {
-            let startOfDay = calendar.startOfDay(for: currentDate)
-            fetchedResultsController.fetchRequest.predicate =  NSPredicate(format: "SUBQUERY(records, $r, $r.date == %@).@count == 0 AND category != nil", startOfDay as CVarArg)
             try fetchedResultsController.performFetch()
         } catch let error {
             print(error.localizedDescription)
         }
         let doneRequest = NSFetchRequest<TrackerCD>(entityName: "TrackerCD")
-
+        let startOfDay = calendar.startOfDay(for: currentDate)
         do {
-            let fetchedDoneData = try context.fetch(doneRequest)
+            _ = try context.fetch(doneRequest)
             guard let trackersCD = fetchedResultsController.fetchedObjects
             else { return [] }
             var categoriesCD: [TrackerCategoryCD] = []
@@ -82,7 +85,8 @@ final class Store: NSObject {
             }
             categoriesCD.forEach {
                 guard let currentCategory = TrackerCategory.fromCoreData($0, decoder: jsonDecoder) else {return}
-                result.append(TrackerCategory(id: currentCategory.id, label: currentCategory.label, trackers: trackersCD.filter { $0.category!.id == currentCategory.id }.compactMap{ Tracker.fromCoreData($0, decoder: jsonDecoder) }))
+                let trackers = trackersCD.filter { $0.category?.id == currentCategory.id }
+                result.append(TrackerCategory(id: currentCategory.id, label: currentCategory.label, trackers: trackers.compactMap{ Tracker.fromCoreData($0, decoder: jsonDecoder, isCompleted:  $0.records?.contains(where: {($0 as! TrackerRecordCD).date == startOfDay}) ?? false, recordsCount: $0.records?.count) }))
             }
 
             return filteredData(categories: result)
@@ -115,6 +119,111 @@ final class Store: NSObject {
             }
         }
         return result
+    }
+    
+    func addNewCategory(_ newCategory: TrackerCategory) throws {
+        let TrackerCategoryCoreData = TrackerCategoryCD(context: context)
+        updateExistingCategory(TrackerCategoryCoreData, with: newCategory)
+        try context.save()
+    }
+
+    func updateExistingCategory(_ trackerCategoryCoreData: TrackerCategoryCD, with category: TrackerCategory) {
+        trackerCategoryCoreData.label = category.label
+        trackerCategoryCoreData.id = category.id
+        trackerCategoryCoreData.createdAt = Date()
+        trackerCategoryCoreData.trackers = []
+    }
+
+    func extractAllCategoriesAsArray() -> [TrackerCategory] {
+        let request = NSFetchRequest<TrackerCategoryCD>(entityName: "TrackerCategoryCD")
+        var categoriesCD: [TrackerCategoryCD] = []
+        do {
+            categoriesCD = try context.fetch(request)
+        } catch {
+            print("Error fetching categoriesCD: \(error)")
+        }
+        let categories = categoriesCD.compactMap { TrackerCategory.fromCoreData($0, decoder: jsonDecoder) }
+        return categories
+    }
+
+    func extractCategoryById(id: UUID) -> TrackerCategoryCD? {
+        let request = NSFetchRequest<TrackerCategoryCD>(entityName: "TrackerCategoryCD")
+        request.predicate = NSPredicate(format: "%K == %@", "id", id as CVarArg)
+        request.fetchLimit = 1
+
+        return try? context.fetch(request).first
+    }
+
+    func addNewTracker(_ newTracker: Tracker, category: TrackerCategoryCD) throws {
+        let TrackerCoreData = TrackerCD(context: context)
+        updateExistingTracker(TrackerCoreData, with: newTracker, category: category)
+        try context.save()
+    }
+
+    func updateExistingTracker(_ trackerCoreData: TrackerCD, with tracker: Tracker, category: TrackerCategoryCD) {
+        trackerCoreData.emoji = tracker.emoji
+        trackerCoreData.color = tracker.color
+        trackerCoreData.label = tracker.label
+        trackerCoreData.id = tracker.id
+        trackerCoreData.createdAt = Date()
+        trackerCoreData.category = category
+
+        if let schedule = tracker.schedule {
+            trackerCoreData.schedule = try? jsonEncoder.encode(schedule)
+        }
+    }
+    func extractTrackerById(id: UUID) -> TrackerCD? {
+        let request = NSFetchRequest<TrackerCD>(entityName: "TrackerCD")
+        request.predicate = NSPredicate(format: "%K == %@", "id", id as CVarArg)
+        request.fetchLimit = 1
+
+        return try? context.fetch(request).first
+    }
+
+    func extractAllTrackersAsArray() -> [Tracker] {
+        let request = NSFetchRequest<TrackerCD>(entityName: "TrackerCD")
+        let trackersCD = try! context.fetch(request)
+        let trackers = trackersCD.compactMap { Tracker.fromCoreData($0, decoder: jsonDecoder, isCompleted: nil, recordsCount: nil) }
+        return trackers
+    }
+
+    func addNewRecord(tracker: TrackerCD, date: Date) throws {
+        let trackerRecordCoreData = TrackerRecordCD(context: context)
+        updateExistingTrackerRecord(trackerRecordCoreData, tracker: tracker, date: date)
+        try context.save()
+    }
+
+    func updateExistingTrackerRecord(_ trackerRecordCoreData: TrackerRecordCD,tracker: TrackerCD, date: Date) {
+        trackerRecordCoreData.tracker = tracker
+        let calendar = Calendar.current
+        let startOfDay = calendar.startOfDay(for: date)
+        trackerRecordCoreData.date = startOfDay
+        trackerRecordCoreData.id = UUID()
+        trackerRecordCoreData.createdAt = Date()
+    }
+
+    func deleteRecord(tracker: TrackerCD, date: Date) throws {
+        guard let id = tracker.id else { return }
+        guard let recordCD = extractRecordByTrackerIdAndDate(id: id, date: date) else { return }
+        context.delete(recordCD)
+        try context.save()
+    }
+
+    func extractAllRecordsAsArray() -> [TrackerRecord] {
+        let request = NSFetchRequest<TrackerRecordCD>(entityName: "TrackerRecordCD")
+        let recordsCD = try! context.fetch(request)
+        let records = recordsCD.compactMap { TrackerRecord.fromCoreData($0) }
+        return records
+    }
+
+    func extractRecordByTrackerIdAndDate(id: UUID, date: Date) -> TrackerRecordCD? {
+        let calendar = Calendar.current
+        let startOfDay = calendar.startOfDay(for: date)
+        let request = NSFetchRequest<TrackerRecordCD>(entityName: "TrackerRecordCD")
+        request.predicate = NSPredicate(format: "%K == %@", "id", id as CVarArg)
+        request.predicate = NSPredicate(format: "tracker.id == %@ AND date == %@", id as CVarArg, startOfDay as NSDate)
+        request.fetchLimit = 1
+        return try? context.fetch(request).first
     }
 }
 

@@ -14,6 +14,7 @@
 		D53EAE4A29AE8F0B00E40373 /* CategoryCreationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D53EAE4929AE8F0B00E40373 /* CategoryCreationViewController.swift */; };
 		D53EAE4C29AEA4D300E40373 /* CategoryViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = D53EAE4B29AEA4D300E40373 /* CategoryViewCell.swift */; };
 		D56E0C70298B12E7008E2038 /* TrackerSelectViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D56E0C6F298B12E7008E2038 /* TrackerSelectViewController.swift */; };
+		D57DA57E29D39F23003B5899 /* Declination.swift in Sources */ = {isa = PBXBuildFile; fileRef = D57DA57D29D39F23003B5899 /* Declination.swift */; };
 		D58885B3299C3146003ED98D /* OnboardingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D58885B2299C3146003ED98D /* OnboardingViewController.swift */; };
 		D58885B6299C31F0003ED98D /* YPButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = D58885B5299C31F0003ED98D /* YPButton.swift */; };
 		D58885BA299C3284003ED98D /* OnboardingPageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D58885B9299C3284003ED98D /* OnboardingPageViewController.swift */; };
@@ -78,6 +79,7 @@
 		D53EAE4929AE8F0B00E40373 /* CategoryCreationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryCreationViewController.swift; sourceTree = "<group>"; };
 		D53EAE4B29AEA4D300E40373 /* CategoryViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryViewCell.swift; sourceTree = "<group>"; };
 		D56E0C6F298B12E7008E2038 /* TrackerSelectViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackerSelectViewController.swift; sourceTree = "<group>"; };
+		D57DA57D29D39F23003B5899 /* Declination.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Declination.swift; sourceTree = "<group>"; };
 		D58885B2299C3146003ED98D /* OnboardingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingViewController.swift; sourceTree = "<group>"; };
 		D58885B5299C31F0003ED98D /* YPButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YPButton.swift; sourceTree = "<group>"; };
 		D58885B9299C3284003ED98D /* OnboardingPageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingPageViewController.swift; sourceTree = "<group>"; };
@@ -231,6 +233,7 @@
 			isa = PBXGroup;
 			children = (
 				D58A5E9E298EBA3600260AC8 /* UIColor+HEX.swift */,
+				D57DA57D29D39F23003B5899 /* Declination.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -495,6 +498,7 @@
 				D58A5EA6298EC3E700260AC8 /* TrackerRecord.swift in Sources */,
 				D5DC2D502985CD6C001F9D7B /* TrackersViewController.swift in Sources */,
 				D53EAE4829AE8A6600E40373 /* CategoryViewController.swift in Sources */,
+				D57DA57E29D39F23003B5899 /* Declination.swift in Sources */,
 				D58A5EA4298EC3D900260AC8 /* TrackerCategory.swift in Sources */,
 				D58885B6299C31F0003ED98D /* YPButton.swift in Sources */,
 				D532D3482988618D00572A8A /* StatisticsViewController.swift in Sources */,

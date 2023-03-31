@@ -69,7 +69,7 @@ final class CategoryViewController: UIViewController{
     
     @objc
     private func addCategory() {
-        let categoryCreationViewController = CategoryCreationViewController() { [weak self] newCategory in
+        let categoryCreationViewController = CategoryCreationViewController(categories:categories) { [weak self] newCategory in
             guard let self else { return }
             self.selectedCategory = newCategory
             var categories = self.categories;
@@ -120,17 +120,20 @@ extension CategoryViewController: UITableViewDataSource {
             assertionFailure("Can't get cell for Schedule")
             return .init()
         }
+
+        var type: CornerCellType? = nil
+        if  indexPath.row == 0 {
+            type = CornerCellType.first
+        } else if indexPath.row == categories.count - 1 {
+            type = CornerCellType.last
+        }
         
         let category = categories[indexPath.row]
         
         categoryCell.configure(
             label: category.label,
             isOn: selectedCategory != nil ? true : false,
-            type: indexPath.row == 0
-            ? .first
-            : indexPath.row == categories.count - 1
-            ? .last
-            : nil
+            type: type
         )
         
         return categoryCell

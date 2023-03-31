@@ -14,8 +14,8 @@ final class TabBarController: UITabBarController {
 
     override func viewDidLoad() {
            super.viewDidLoad()
-
-           let viewController = TrackersViewController()
+            let store = Store()
+           let viewController = TrackersViewController(store: store)
            let navigationController = UINavigationController(rootViewController: viewController)
         
            let statisticsViewController = StatisticsViewController()

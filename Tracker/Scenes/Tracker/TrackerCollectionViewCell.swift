@@ -73,11 +73,16 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
 extension TrackerCollectionViewCell {
     func configure(with model: Tracker?) {
         trackerLabel.text = model?.label
-        dayLabel.text = model != nil ? "?? день" : nil
+        dayLabel.text = declineDay(model?.recordsCount ?? 0)
         emojiLabel.text = model?.emoji
         guard let color = model?.color else {return}
         colorBackground.backgroundColor = UIColor(hex: color + "ff")
         addButton.backgroundColor =  UIColor(hex: color + "ff")
+        if model?.isCompleted ?? false {
+            addButton.setImage(UIImage(named: "done"), for: .normal)
+        } else {
+            addButton.setImage(UIImage(systemName: "plus"), for: .normal)
+        }
     }
 }
 
