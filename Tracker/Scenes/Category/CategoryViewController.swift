@@ -1,13 +1,19 @@
 import UIKit
 
-final class ScheduleViewController: UIViewController{
+final class CategoryViewController: UIViewController{
+    private var categories: [TrackerCategory]
+    private var selectedCategory: TrackerCategory?
     private var days: Set<WeekDay>
-    private let completion: (Set<WeekDay>) -> Void
+    private let completion: (TrackerCategory) -> Void
+    private let addingCategoryCompletion: (TrackerCategory) -> Void
     private var items: [WeekDay] {WeekDay.allCases}
     
-    init(days: Set<WeekDay>, completion: @escaping (Set<WeekDay>) -> Void){
+    init(categories: [TrackerCategory], selectedCategory: TrackerCategory?, days: Set<WeekDay>, completion: @escaping (TrackerCategory) -> Void, addingCategoryCompletion: @escaping (TrackerCategory) -> Void){
+        self.categories  = categories
+        self.selectedCategory = selectedCategory
         self.days = days
         self.completion  = completion
+        self.addingCategoryCompletion  = addingCategoryCompletion
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -17,7 +23,6 @@ final class ScheduleViewController: UIViewController{
     
     private let labelView: UILabel = UILabel();
     private let submitButton = UIButton(frame: CGRect(x: 100, y: 100, width: 100, height: 50))
-    
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -31,6 +36,7 @@ final class ScheduleViewController: UIViewController{
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             tableView.bottomAnchor.constraint(equalTo:     view.bottomAnchor, constant: -150),
         ])
+        
     }
     
     private func setupEntity() {
@@ -52,86 +58,84 @@ final class ScheduleViewController: UIViewController{
             submitButton.heightAnchor.constraint(equalToConstant: 60),
         ])
         
-        
-        labelView.text = "Расписание"
+        labelView.text = "Категория"
         labelView.font = .asset(.ysDisplayMedium, size: 16)
-        submitButton.setTitle("Готово", for: .normal)
+        submitButton.setTitle("Добавить категорию", for: .normal)
         submitButton.backgroundColor = .asset(.black)
         submitButton.layer.cornerRadius = 16
         submitButton.setTitleColor(.white, for: .normal)
-        submitButton.addTarget(self, action: #selector(addSchedule), for: .touchUpInside)
-        
-        
+        submitButton.addTarget(self, action: #selector(addCategory), for: .touchUpInside)
     }
     
     @objc
-    private func addSchedule() {
-        completion(days)
-        self.dismiss(animated: false, completion: nil)
+    private func addCategory() {
+        let categoryCreationViewController = CategoryCreationViewController(categories:categories) { [weak self] newCategory in
+            guard let self else { return }
+            self.selectedCategory = newCategory
+            var categories = self.categories;
+            categories.append(newCategory)
+            self.categories = categories
+            self.tableView.reloadData()
+            self.completion(newCategory)
+            self.addingCategoryCompletion(newCategory)
+            self.dismiss(animated: false, completion: nil)
+        }
+        present(categoryCreationViewController, animated: true)
     }
     
     private lazy var tableView: UITableView = {
         let table = UITableView()
-        
-        table.register(ScheduleViewCell.self, forCellReuseIdentifier: "cell")
-        
+        table.register(CategoryViewCell.self, forCellReuseIdentifier: "cell")
         table.separatorInset = .init(top: 0, left: 32, bottom: 0, right: 32)
         table.separatorColor = .asset(.grey)
-        
         table.delegate = self
         table.dataSource = self
-        
         table.translatesAutoresizingMaskIntoConstraints = false
         return table
     }()
 }
 
 // делегат
-extension ScheduleViewController: UITableViewDelegate {
+extension CategoryViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let cell = tableView.cellForRow(at: indexPath) as? ScheduleViewCell
-        
-        let day = items[indexPath.row]
-        let isOn = days.contains(day)
-        
-        if isOn {
-            days.remove(day)
-        } else {
-            days.insert(day)
-        }
-        
-        cell?.setOn(!isOn)
+        let category = categories[indexPath.row]
+        selectedCategory = category
+        completion(category);
+        self.tableView.reloadData()
+        self.dismiss(animated: false, completion: nil)
     }
 }
 
-// MARK: - датасорс
-
-extension ScheduleViewController: UITableViewDataSource {
+// датасорс
+extension CategoryViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        items.count
+        categories.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(
             withIdentifier: "cell", for: indexPath)
         
-        guard let scheduleCell = cell as? ScheduleViewCell else {
+        guard let categoryCell = cell as? CategoryViewCell else {
             assertionFailure("Can't get cell for Schedule")
             return .init()
         }
+
+        var type: CornerCellType? = nil
+        if  indexPath.row == 0 {
+            type = CornerCellType.first
+        } else if indexPath.row == categories.count - 1 {
+            type = CornerCellType.last
+        }
         
-        let day = items[indexPath.row]
+        let category = categories[indexPath.row]
         
-        scheduleCell.configure(
-            label: day.label,
-            isOn: days.contains(day),
-            type: indexPath.row == 0
-            ? .first
-            : indexPath.row == items.count - 1
-            ? .last
-            : nil
+        categoryCell.configure(
+            label: category.label,
+            isOn: selectedCategory != nil ? true : false,
+            type: type
         )
         
-        return scheduleCell
+        return categoryCell
     }
 }

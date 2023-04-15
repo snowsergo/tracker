@@ -2,20 +2,20 @@ import UIKit
 
 final class TrackerCollectionViewCell: UICollectionViewCell {
     weak var delegate: TrackersViewController?
-
+    
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupAppearance()
     }
-
+    
     override func prepareForReuse() {
         configure(with: nil)
     }
-
+    
     private lazy var addButton: UIButton = {
         let button = UIButton()
         button.setImage(UIImage(systemName: "plus"), for: .normal)
@@ -26,7 +26,7 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
-
+    
     private var colorBackground: UIView = {
         let view = UIView()
         view.layer.cornerRadius = 16
@@ -34,7 +34,7 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
-
+    
     private var trackerLabel: UILabel = {
         let label = UILabel()
         label.numberOfLines = 0
@@ -43,7 +43,7 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
-
+    
     private var dayLabel: UILabel = {
         let label = UILabel()
         label.numberOfLines = 1
@@ -52,14 +52,14 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
-
+    
     private var emojiLabel: UILabel = {
         let label = UILabel()
         label.font = .asset(.ysDisplayMedium, size: 12)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
-
+    
     private var emojiBackground: UIView = {
         let view = UIView()
         view.backgroundColor = .asset(.contrast)
@@ -73,11 +73,16 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
 extension TrackerCollectionViewCell {
     func configure(with model: Tracker?) {
         trackerLabel.text = model?.label
-        dayLabel.text = model != nil ? "?? день" : nil
+        dayLabel.text = declineDay(model?.recordsCount ?? 0)
         emojiLabel.text = model?.emoji
-
-        colorBackground.backgroundColor = model?.color.uiColor
-        addButton.backgroundColor = model?.color.uiColor
+        guard let color = model?.color else {return}
+        colorBackground.backgroundColor = UIColor(hex: color + "ff")
+        addButton.backgroundColor =  UIColor(hex: color + "ff")
+        if model?.isCompleted ?? false {
+            addButton.setImage(UIImage(named: "done"), for: .normal)
+        } else {
+            addButton.setImage(UIImage(systemName: "plus"), for: .normal)
+        }
     }
 }
 
@@ -96,7 +101,7 @@ private extension TrackerCollectionViewCell {
         contentView.addSubview(emojiLabel)
         contentView.insertSubview(emojiBackground, at: 0)
         contentView.insertSubview(colorBackground, at: 0)
-
+        
         NSLayoutConstraint.activate([
             colorBackground.topAnchor.constraint(equalTo: contentView.topAnchor),
             colorBackground.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
