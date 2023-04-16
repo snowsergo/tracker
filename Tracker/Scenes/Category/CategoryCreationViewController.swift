@@ -1,7 +1,6 @@
 import UIKit
 
 final class CategoryCreationViewController: UIViewController{
-//    weak var delegate: TrackersViewController?
     private let completion: (TrackerCategory) -> Void
     private let categoryNames: [String]
     
@@ -139,7 +138,6 @@ private extension CategoryCreationViewController {
             label: text,
             trackers: []
         )
-//        self.delegate?.addNewCategory(newCategory: newCategory)
         completion(newCategory)
     }
 }

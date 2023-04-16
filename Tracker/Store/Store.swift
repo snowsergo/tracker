@@ -122,7 +122,6 @@ final class Store: NSObject {
     }
     
     func addNewCategory(_ newCategory: TrackerCategory) throws {
-        print("____addNewCategory_____")
         let TrackerCategoryCoreData = TrackerCategoryCD(context: context)
         updateExistingCategory(TrackerCategoryCoreData, with: newCategory)
         try context.save()
@@ -137,6 +136,8 @@ final class Store: NSObject {
 
     func extractAllCategoriesAsArray() -> [TrackerCategory] {
         let request = NSFetchRequest<TrackerCategoryCD>(entityName: "TrackerCategoryCD")
+        let sortDescriptor = NSSortDescriptor(key: "createdAt", ascending: false)
+        request.sortDescriptors = [sortDescriptor]
         var categoriesCD: [TrackerCategoryCD] = []
         do {
             categoriesCD = try context.fetch(request)
@@ -233,7 +234,6 @@ extension Store: NSFetchedResultsControllerDelegate {
     func controllerWillChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {}
 
     func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
-        print("вызвали обновление стора")
         delegate?.didUpdate()
     }
 }

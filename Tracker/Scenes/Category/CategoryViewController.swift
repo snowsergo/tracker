@@ -2,20 +2,15 @@ import UIKit
 
 final class CategoryViewController: UIViewController{
     private var viewModel: CategoriesViewModel!
-//    private var categories: [TrackerCategory]
-//    private var selectedCategory: TrackerCategory?
-//    private var selectedCategory: TrackerCategory?
+    private var selectedCategory: TrackerCategory?
     private var days: Set<WeekDay>
     private let completion: (TrackerCategory) -> Void
-    private let addingCategoryCompletion: (TrackerCategory) -> Void
     private var items: [WeekDay] {WeekDay.allCases}
     
-    init(categories: [TrackerCategory], selectedCategory: TrackerCategory?, days: Set<WeekDay>, completion: @escaping (TrackerCategory) -> Void, addingCategoryCompletion: @escaping (TrackerCategory) -> Void){
-//        self.categories  = categories
-//        self.selectedCategory = selectedCategory
+    init(categories: [TrackerCategory], selectedCategory: TrackerCategory?, days: Set<WeekDay>, completion: @escaping (TrackerCategory) -> Void){
+        self.selectedCategory = selectedCategory
         self.days = days
         self.completion  = completion
-        self.addingCategoryCompletion  = addingCategoryCompletion
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -40,14 +35,15 @@ final class CategoryViewController: UIViewController{
         ])
 
         viewModel = CategoriesViewModel()
-
+        viewModel.selectedCategory = selectedCategory
         viewModel.onChange = updateTable
         
     }
+
     func updateTable() {
-        print("----- update Table")
         tableView.reloadData()
     }
+
     private func setupEntity() {
         labelView.translatesAutoresizingMaskIntoConstraints = false
         submitButton.translatesAutoresizingMaskIntoConstraints = false
@@ -67,7 +63,7 @@ final class CategoryViewController: UIViewController{
             submitButton.heightAnchor.constraint(equalToConstant: 60),
         ])
         
-        labelView.text = "Категория123"
+        labelView.text = "Категория"
         labelView.font = .asset(.ysDisplayMedium, size: 16)
         submitButton.setTitle("Добавить категорию", for: .normal)
         submitButton.backgroundColor = .asset(.black)
@@ -78,16 +74,8 @@ final class CategoryViewController: UIViewController{
     
     @objc
     private func addCategory() {
-//        viewModel.addCategory()
         let categoryCreationViewController = CategoryCreationViewController(categories: viewModel.categories) { [weak self] newCategory in
             guard let self else { return }
-//            self.selectedCategory = newCategory
-//            var categories = self.categories;
-//            categories.append(newCategory)
-//            self.categories = categories
-//            self.tableView.reloadData()
-            self.completion(newCategory)
-            self.addingCategoryCompletion(newCategory)
             self.viewModel.addCategory(newCategory: newCategory)
             self.dismiss(animated: false, completion: nil)
         }
@@ -109,7 +97,6 @@ final class CategoryViewController: UIViewController{
 // делегат
 extension CategoryViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-//        let category = categories[indexPath.row]
         let category = viewModel.categories[indexPath.row]
         viewModel.selectedCategory = category
         completion(category);
@@ -121,7 +108,6 @@ extension CategoryViewController: UITableViewDelegate {
 // датасорс
 extension CategoryViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-//        categories.count
         viewModel.categories.count
     }
     
@@ -137,17 +123,15 @@ extension CategoryViewController: UITableViewDataSource {
         var type: CornerCellType? = nil
         if  indexPath.row == 0 {
             type = CornerCellType.first
-//        } else if indexPath.row == categories.count - 1 {
         } else if indexPath.row == viewModel.categories.count - 1 {
             type = CornerCellType.last
         }
         
         let category = viewModel.categories[indexPath.row]
-//        let category = categories[indexPath.row]
         
         categoryCell.configure(
             label: category.label,
-            isOn: viewModel.selectedCategory != nil ? true : false,
+            isOn: viewModel.selectedCategory?.id == category.id ? true : false,
             type: type
         )
         

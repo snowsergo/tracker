@@ -41,7 +41,6 @@
 		D5B16DB3299ECBA1006334F1 /* YSDisplay-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = D5B16DB0299ECBA1006334F1 /* YSDisplay-Bold.ttf */; };
 		D5B16DB5299ECDE9006334F1 /* FontAsset+UIFont.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5B16DB4299ECDE9006334F1 /* FontAsset+UIFont.swift */; };
 		D5B3C2A42999318000CE90E5 /* TrackerCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5B3C2A32999318000CE90E5 /* TrackerCollectionViewCell.swift */; };
-		D5BE07F129EB305300ED366D /* CategoryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5BE07F029EB305300ED366D /* CategoryViewModel.swift */; };
 		D5BE07F329EB306300ED366D /* CategoriesViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5BE07F229EB306300ED366D /* CategoriesViewModel.swift */; };
 		D5D3696D2990188000B0D0F0 /* ScheduleButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5D3696C2990188000B0D0F0 /* ScheduleButton.swift */; };
 		D5DC2D4C2985CD6C001F9D7B /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5DC2D4B2985CD6C001F9D7B /* AppDelegate.swift */; };
@@ -108,7 +107,6 @@
 		D5B16DB0299ECBA1006334F1 /* YSDisplay-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "YSDisplay-Bold.ttf"; sourceTree = "<group>"; };
 		D5B16DB4299ECDE9006334F1 /* FontAsset+UIFont.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "FontAsset+UIFont.swift"; sourceTree = "<group>"; };
 		D5B3C2A32999318000CE90E5 /* TrackerCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackerCollectionViewCell.swift; sourceTree = "<group>"; };
-		D5BE07F029EB305300ED366D /* CategoryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryViewModel.swift; sourceTree = "<group>"; };
 		D5BE07F229EB306300ED366D /* CategoriesViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoriesViewModel.swift; sourceTree = "<group>"; };
 		D5D3696C2990188000B0D0F0 /* ScheduleButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScheduleButton.swift; sourceTree = "<group>"; };
 		D5DC2D482985CD6C001F9D7B /* Tracker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Tracker.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -156,7 +154,6 @@
 			isa = PBXGroup;
 			children = (
 				D53EAE4729AE8A6600E40373 /* CategoryViewController.swift */,
-				D5BE07F029EB305300ED366D /* CategoryViewModel.swift */,
 				D5BE07F229EB306300ED366D /* CategoriesViewModel.swift */,
 				D53EAE4929AE8F0B00E40373 /* CategoryCreationViewController.swift */,
 				D53EAE4B29AEA4D300E40373 /* CategoryViewCell.swift */,
@@ -505,7 +502,6 @@
 				D5DC2D502985CD6C001F9D7B /* TrackersViewController.swift in Sources */,
 				D53EAE4829AE8A6600E40373 /* CategoryViewController.swift in Sources */,
 				D57DA57E29D39F23003B5899 /* Declination.swift in Sources */,
-				D5BE07F129EB305300ED366D /* CategoryViewModel.swift in Sources */,
 				D58A5EA4298EC3D900260AC8 /* TrackerCategory.swift in Sources */,
 				D58885B6299C31F0003ED98D /* YPButton.swift in Sources */,
 				D5BE07F329EB306300ED366D /* CategoriesViewModel.swift in Sources */,

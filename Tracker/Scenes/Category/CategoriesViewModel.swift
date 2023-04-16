@@ -5,22 +5,23 @@ final class CategoriesViewModel {
 
     private(set) var categories: [TrackerCategory] = [] {
         didSet {
-            print("---did Set")
-            onChange?() // сообщаем через замыкание, что ViewModel изменилась
+            onChange?()
         }
     }
     var selectedCategory: TrackerCategory? {
         didSet {
-//            onChange?() // сообщаем через замыкание, что ViewModel изменилась
+            onChange?()
         }
     }
     private let store: Store
 
+
     convenience init() {
-        let store = Store()
+        let store = try! Store(
+            context: (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
+        )
         self.init(store: store)
     }
-
     init(store: Store) {
         self.store = store
         store.delegate = self
@@ -28,19 +29,17 @@ final class CategoriesViewModel {
     }
 
     func addCategory(newCategory: TrackerCategory) {
-        print(" /___ addCategory")
-       try? store.addNewCategory(newCategory)
+        try? store.addNewCategory(newCategory)
+        didUpdate()
     }
 
     private func getCategoriesFromStore() -> [TrackerCategory] {
-        print(" / _____getCategoriesFromStore")
-        return store.categories
+        return store.extractAllCategoriesAsArray()
     }
 }
 
 extension CategoriesViewModel: StoreDelegate {
     func didUpdate() {
-        print(" / 1___didUpdate____")
         categories = getCategoriesFromStore()
     }
 }

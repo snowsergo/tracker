@@ -294,15 +294,8 @@ private extension TrackerCreationViewController {
         self.updateButtonStatus()
     }
     
-    func addCategory(newCategory: TrackerCategory)->Void {
-        addingCategoryCompletion(newCategory);
-        var categories = self.categories
-        categories.append(newCategory)
-        self.categories = categories
-    }
-    
     @objc func changeCategory() {
-        let categoryViewController = CategoryViewController(categories: categories, selectedCategory: selectedCategory, days: days, completion: selectCategory, addingCategoryCompletion: addCategory)
+        let categoryViewController = CategoryViewController(categories: categories, selectedCategory: selectedCategory, days: days, completion: selectCategory)
         present(categoryViewController, animated: true)
     }
     
