@@ -1,9 +1,6 @@
 import UIKit
 
 final class CategoryViewCell: UITableViewCell {
-    var isOn: Bool = false
-
-    
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         setupAppearance()
@@ -25,14 +22,21 @@ final class CategoryViewCell: UITableViewCell {
 
     func configure(label: String? = nil, isOn: Bool = false, type: CornerCellType? = nil) {
         labelView.text = label
-
-        self.isOn = isOn
+        if isOn {
+            addSubview(iconView)
+            NSLayoutConstraint.activate([
+                iconView.centerYAnchor.constraint(equalTo: centerYAnchor),
+                iconView.trailingAnchor.constraint(equalTo: backView.trailingAnchor, constant: -16)
+            ])
+        } else {
+            iconView.removeFromSuperview()
+        }
 
         backView.layer.maskedCorners = type == .first
-            ? [.layerMinXMinYCorner, .layerMaxXMinYCorner]
-            : type == .last
-                ? [.layerMinXMaxYCorner, .layerMaxXMaxYCorner]
-                : []
+        ? [.layerMinXMinYCorner, .layerMaxXMinYCorner]
+        : type == .last
+        ? [.layerMinXMaxYCorner, .layerMaxXMaxYCorner]
+        : []
 
         if type == .last {
             separatorInset = .init(top: 0, left: .infinity, bottom: 0, right: 0)
@@ -68,7 +72,6 @@ final class CategoryViewCell: UITableViewCell {
 }
 
 // MARK: - Appearance
-
 private extension CategoryViewCell {
 
     func setupAppearance() {
@@ -88,13 +91,5 @@ private extension CategoryViewCell {
             labelView.topAnchor.constraint(equalTo: topAnchor, constant: 26.5),
             labelView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -26.5),
         ])
-
-        if (self.isOn){
-            addSubview(iconView)
-            NSLayoutConstraint.activate([
-                iconView.centerYAnchor.constraint(equalTo: centerYAnchor),
-                iconView.trailingAnchor.constraint(equalTo: backView.trailingAnchor, constant: -16)
-            ])
-        }
     }
 }
