@@ -15,7 +15,10 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
     override func prepareForReuse() {
         configure(with: nil)
     }
-    
+    // Добавляем обработчик жеста на View
+//            let longPressGesture = UILongPressGestureRecognizer(target: self, action: #selector(didLongPress))
+
+
     private lazy var addButton: UIButton = {
         let button = UIButton()
         button.setImage(UIImage(systemName: "plus"), for: .normal)
@@ -83,13 +86,44 @@ extension TrackerCollectionViewCell {
         } else {
             addButton.setImage(UIImage(systemName: "plus"), for: .normal)
         }
+//        colorBackground.addGestureRecognizer(longPressGesture)
     }
+
 }
 
 private extension TrackerCollectionViewCell {
     @objc func doneTapped() {
         delegate?.setTrackerCompleted(self)
     }
+
+//    @objc private func didLongPress(gesture: UILongPressGestureRecognizer) {
+//          guard gesture.state == .began else { return }
+//
+//          // Получаем indexPath ячейки
+//          guard let collectionView = superview as? UICollectionView,
+//                let indexPath = collectionView.indexPath(for: self)
+//          else { return }
+//
+//          // Создаем действия для меню
+//          let action1 = UIAction(title: "Действие 1") { _ in
+//              // Обработчик действия 1
+//              print("1")
+//          }
+//          let action2 = UIAction(title: "Действие 2") { _ in
+//              // Обработчик действия 2
+//              print("2")
+//          }
+//          let menu = UIMenu(title: "", children: [action1, action2])
+//
+//          // Создаем конфигурацию контекстного меню и возвращаем ее
+//          let configuration = UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { _ in
+//              return menu
+//          }
+//
+//          // Отображаем контекстное меню
+//          let menuController = UIMenuController.shared
+//          menuController.showMenu(from: collectionView, rect: colorBackground.frame)
+//      }
 }
 
 
@@ -101,7 +135,8 @@ private extension TrackerCollectionViewCell {
         contentView.addSubview(emojiLabel)
         contentView.insertSubview(emojiBackground, at: 0)
         contentView.insertSubview(colorBackground, at: 0)
-        
+
+
         NSLayoutConstraint.activate([
             colorBackground.topAnchor.constraint(equalTo: contentView.topAnchor),
             colorBackground.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),

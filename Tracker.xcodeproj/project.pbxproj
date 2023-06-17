@@ -267,8 +267,8 @@
 			isa = PBXGroup;
 			children = (
 				D590AB5929B26658001B760E /* EmojiCell.swift */,
-				D590AB5D29B28598001B760E /* ColorCell.swift */,
 				D590AB5B29B284C3001B760E /* SubTableHeaderView.swift */,
+				D590AB5D29B28598001B760E /* ColorCell.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";

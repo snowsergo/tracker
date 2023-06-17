@@ -1,6 +1,10 @@
 import UIKit
 
 final class TrackersViewController: UIViewController {
+//    func contextMenuInteraction(_ interaction: UIContextMenuInteraction, configurationForMenuAtLocation location: CGPoint) -> UIContextMenuConfiguration? {
+//        <#code#>
+//    }
+
     
     private var categories: [TrackerCategory] = []
     private var allCategories: [TrackerCategory]=[]
@@ -184,7 +188,100 @@ final class TrackersViewController: UIViewController {
         didUpdate()
         updatePlaceholderVisibility()
     }
-    
+
+//    @objc func didLongPress(gesture: UILongPressGestureRecognizer) {
+//          guard gesture.state == .began else { return }
+//
+//          // Получаем indexPath ячейки
+//          guard
+////            let collectionView = collectionView
+//            
+//                let indexPath = collectionView.indexPath(for: cell)
+//          else { return }
+//
+//          // Создаем действия для меню
+//          let action1 = UIAction(title: "Действие 1") { _ in
+//              // Обработчик действия 1
+//              print("1")
+//          }
+//          let action2 = UIAction(title: "Действие 2") { _ in
+//              // Обработчик действия 2
+//              print("2")
+//          }
+//          let menu = UIMenu(title: "", children: [action1, action2])
+//
+//          // Создаем конфигурацию контекстного меню и возвращаем ее
+//          let configuration = UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { _ in
+//              return menu
+//          }
+//
+//          // Отображаем контекстное меню
+//          let menuController = UIMenuController.shared
+//          menuController.showMenu(from: collectionView, rect: colorBackground.frame)
+//      }
+//    func didTapTrackerBackground(in cell: TrackerCollectionViewCell) {
+//            guard let indexPath = collectionView.indexPath(for: cell) else {
+//                return
+//            }
+//
+//            let menuConfiguration = UIContextMenuConfiguration(identifier: nil, previewProvider: nil, actionProvider: { _ in
+////                return UIMenu(title: "", children: [
+////                    UIAction(title: "Bold") { [weak self] _ in
+////                        self?.makeBold(indexPath: indexPath)
+////                    },
+////                    UIAction(title: "Italic") { [weak self] _ in
+////                        self?.makeItalic(indexPath: indexPath)
+////                    }
+////                ])
+//                let boldAction = UIAction(title: "Bold", image: UIImage(systemName: "bold")) { [weak self] _ in
+//                        self?.makeBold(indexPath: indexPath)
+//                    }
+//                    let italicAction = UIAction(title: "Italic", image: UIImage(systemName: "italic")) { [weak self] _ in
+//                        self?.makeItalic(indexPath: indexPath)
+//                    }
+//                    return UIMenu(title: "", children: [boldAction, italicAction])
+//            })
+//
+//        let targetView = cell.backgroundColor // здесь должен быть ваш UIImageView
+//            let contextMenu = UIMenuController.shared
+//            contextMenu.showContextMenu(from: targetView, in: targetView)
+//            contextMenu.menuItems = menuConfiguration.menuItems
+//
+//
+//
+//        }
+
+//    // Функция обработки жеста нажатия для вызова контекстного меню
+//       @objc func handleLongPressGesture(_ gesture: UILongPressGestureRecognizer) {
+//           guard gesture.state == .began else {
+//               return
+//           }
+//           let touchPoint = gesture.location(in: collectionView)
+//           if let indexPath = collectionView.indexPathForItem(at: touchPoint) {
+//               let selectedTracker = categories[indexPath.section].trackers[indexPath.item]
+//               let configuration = UIContextMenuConfiguration(identifier: nil, previewProvider: nil, actionProvider: { suggestedActions in
+//                   let boldAction = UIAction(title: "Bold", image: UIImage(systemName: "bold")) { _ in
+//                       self.makeBold(selectedTracker: selectedTracker)
+//                   }
+//                   let italicAction = UIAction(title: "Italic", image: UIImage(systemName: "italic")) { _ in
+//                       self.makeItalic(selectedTracker: selectedTracker)
+//                   }
+//                   return UIMenu(title: "", children: [boldAction, italicAction])
+//               })
+//               let menu = UIMenu(title: "")
+//               let cell = collectionView.cellForItem(at: indexPath)
+//               let menuInteraction = UIContextMenuInteraction(delegate: self)
+//               cell?.addInteraction(menuInteraction)
+//               menuInteraction.updateVisibleMenu(with: configuration, from: cell?.contentView.bounds ?? CGRect.zero)
+//           }
+//       }
+    func makeBold(selectedTracker: Tracker) {
+          print("bold")
+      }
+
+      func makeItalic(selectedTracker: Tracker) {
+          print("italic")
+      }
     @objc private func dateHandler(_ sender: UIDatePicker) {
         store.currentDate = sender.date
         didUpdate()
@@ -251,6 +348,8 @@ extension TrackersViewController: UICollectionViewDataSource {
         
         cell.configure(with: categories[indexPath.section].trackers[indexPath.item])
         cell.delegate = self
+//        let longPressGesture = UILongPressGestureRecognizer(target: self, action: #selector(handleLongPressGesture(_:)))
+//                cell.addGestureRecognizer(longPressGesture)
         return cell
     }
     
@@ -262,8 +361,28 @@ extension TrackersViewController: UICollectionViewDataSource {
     }
 }
 
+
 extension TrackersViewController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+    }
+// вызов контекстного меню
+    internal func collectionView(_ collectionView: UICollectionView, contextMenuConfigurationForItemAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
+        let action1 = UIAction(title: "действие 1") { [weak self] _ in
+            self?.makeBold(indexPath: indexPath)
+        }
+        let action2 = UIAction(title: "действие 2") { [weak self] _ in
+            self?.makeItalic(indexPath: indexPath)
+        }
+        let menu = UIMenu(title: "", children: [action1, action2])
+        return UIContextMenuConfiguration(identifier: nil, previewProvider: nil, actionProvider: { _ in menu })
+    }
+
+    func makeBold(indexPath: IndexPath) {
+        print("bold")
+    }
+
+    func makeItalic(indexPath: IndexPath) {
+        print("italic")
     }
 }
 
