@@ -19,14 +19,13 @@ final class TrackerSelectViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .white
+        view.backgroundColor = UIColor.asset(.white)
         setupLayout()
     }
     
     private lazy var addHabitButton: UIButton = {
         let button = YPButton(label: "Привычка")
         button.addTarget(self, action: #selector(addHabit), for: .touchUpInside)
-        
         return button
     }()
     
@@ -68,11 +67,9 @@ final class TrackerSelectViewController: UIViewController {
         ])
         
         
-        addHabitButton.backgroundColor = .black
         addHabitButton.setTitle("Привычка", for: .normal)
         addHabitButton.addTarget(self, action: #selector(addHabit), for: .touchUpInside)
         
-        addIrregularButton.backgroundColor = .black
         addIrregularButton.setTitle("Нерегулярное событие", for: .normal)
         addIrregularButton.addTarget(self, action: #selector(addIrregular), for: .touchUpInside)
         

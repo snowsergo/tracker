@@ -19,11 +19,12 @@ final class CategoryViewController: UIViewController{
     }
     
     private let labelView: UILabel = UILabel();
-    private let submitButton = UIButton(frame: CGRect(x: 100, y: 100, width: 100, height: 50))
-    
+
+    private let submitButton = YPButton(label: "Добавить категорию")
+
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .white
+        view.backgroundColor = UIColor.asset(.white)
         setupEntity()
         view.addSubview(tableView)
         
@@ -65,10 +66,7 @@ final class CategoryViewController: UIViewController{
         
         labelView.text = "Категория"
         labelView.font = .asset(.ysDisplayMedium, size: 16)
-        submitButton.setTitle("Добавить категорию", for: .normal)
-        submitButton.backgroundColor = .asset(.black)
         submitButton.layer.cornerRadius = 16
-        submitButton.setTitleColor(.white, for: .normal)
         submitButton.addTarget(self, action: #selector(addCategory), for: .touchUpInside)
     }
     

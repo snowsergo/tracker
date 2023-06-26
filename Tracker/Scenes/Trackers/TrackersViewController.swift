@@ -1,17 +1,15 @@
 import UIKit
 
 final class TrackersViewController: UIViewController {
-//    func contextMenuInteraction(_ interaction: UIContextMenuInteraction, configurationForMenuAtLocation location: CGPoint) -> UIContextMenuConfiguration? {
-//        <#code#>
-//    }
-
-    
     private var categories: [TrackerCategory] = []
     private var allCategories: [TrackerCategory]=[]
     private var currentDate: Date = Date()
     private let datePicker: UIDatePicker = UIDatePicker()
     private var searchText: String = ""
     private var isFiltered: Bool = false
+    
+    private let screenName = "Main"
+    private let analyticsServices: AnalyticsServicesProtocol?
     
     private var store: Store
     private var trackersStore: TrackerStore
@@ -36,11 +34,24 @@ final class TrackersViewController: UIViewController {
         return collectionView
     }()
     
-    init(store: Store) {
+    private let filtersButton: UIButton = {
+        let button = UIButton()
+        button.backgroundColor = UIColor.asset(.blue)
+        button.setTitle(NSLocalizedString("filters",comment: ""), for: .normal)
+        button.setTitleColor(UIColor.asset(.white), for: .normal)
+        button.layer.cornerRadius = 16
+        button.contentEdgeInsets = UIEdgeInsets(top: 14, left: 20, bottom: 14, right: 20)
+        button.sizeToFit()
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
+    
+    init(store: Store ,analyticsServices: AnalyticsServicesProtocol? = nil) {
         self.store = store
         categoriesStore = TrackerCategoryStore(store: store)
         trackersStore = TrackerStore(store: store)
         trackerRecordsStore = TrackerRecordStore(store: store)
+        self.analyticsServices = analyticsServices
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -53,14 +64,66 @@ final class TrackersViewController: UIViewController {
         setupNavBar()
         setupTabBar()
         store.delegate = self
-        categories = store.categories
+        categories = prepareCategories(categories: store.categories, filter: store.trackersFilter)
         allCategories = categoriesStore.extractAllCategoriesAsArray()
         setupCollectionView()
         setupPlaceHolders()
         updatePlaceholderVisibility()
-        view.backgroundColor = .white
+        view.backgroundColor = UIColor.asset(.white)
+        
+        view.addSubview(filtersButton)
+        
+        NSLayoutConstraint.activate([
+            filtersButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            filtersButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -40)
+        ])
+        
+        filtersButton.addTarget(self, action: #selector(showFilteringMenu), for: .touchUpInside)
+        
     }
     
+    override func viewDidAppear(_ animated: Bool) {
+        analyticsServices?.openScreen(screen: screenName)
+    }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        analyticsServices?.closeScreen(screen: screenName)
+    }
+    
+    private func prepareCategories(categories: [TrackerCategory], filter: TrackersFilter) -> [TrackerCategory] {
+        var updatedCategories: [TrackerCategory] = []
+        var pinnedTrackers: [Tracker] = []
+        
+        for category in categories {
+            var updatedTrackers: [Tracker]
+            
+            switch filter {
+            case .today:
+                updatedTrackers = category.trackers
+            case .todayCompleted:
+                updatedTrackers = category.trackers.filter { $0.isCompleted ?? false }
+            case .todayUncompleted:
+                updatedTrackers = category.trackers.filter { !($0.isCompleted ?? false) }
+            }
+            
+            let nonPinnedTrackers = updatedTrackers.filter { !$0.pinned }
+            let pinnedTrackersInCategory = updatedTrackers.filter { $0.pinned }
+            
+            if !nonPinnedTrackers.isEmpty {
+                let updatedCategory = TrackerCategory(id: category.id, label: category.label, trackers: nonPinnedTrackers)
+                updatedCategories.append(updatedCategory)
+            }
+            
+            pinnedTrackers.append(contentsOf: pinnedTrackersInCategory)
+        }
+        
+        if !pinnedTrackers.isEmpty {
+            let pinnedCategory = TrackerCategory(id: UUID(), label: "Закрепленные", trackers: pinnedTrackers)
+            updatedCategories.insert(pinnedCategory, at: 0)
+        }
+        
+        return updatedCategories
+    }
     
     
     //настройка навбара сверху
@@ -71,7 +134,10 @@ final class TrackersViewController: UIViewController {
                 NSAttributedString.Key.foregroundColor: UIColor.asset(.black),
                 NSAttributedString.Key.font: UIFont.asset(.ysDisplayBold, size: 34)
             ]
-            navigationItem.title = "Трекеры";
+            navBar.backgroundColor = UIColor.asset(.white)
+            navBar.standardAppearance.backgroundColor = UIColor.asset(.white)
+            navigationItem.title = NSLocalizedString("trackers", comment: "");
+            
             navigationItem.leftBarButtonItem = addButton
             navigationItem.rightBarButtonItem = UIBarButtonItem(customView: datePicker)
             datePicker.translatesAutoresizingMaskIntoConstraints = false
@@ -168,6 +234,7 @@ final class TrackersViewController: UIViewController {
     }()
     
     func setTrackerCompleted(_ cell: TrackerCollectionViewCell) {
+        analyticsServices?.tapOn(element: Const.analyticsIdentifierForTracker)
         guard
             let indexPath = collectionView.indexPath(for: cell)
         else {
@@ -188,100 +255,20 @@ final class TrackersViewController: UIViewController {
         didUpdate()
         updatePlaceholderVisibility()
     }
-
-//    @objc func didLongPress(gesture: UILongPressGestureRecognizer) {
-//          guard gesture.state == .began else { return }
-//
-//          // Получаем indexPath ячейки
-//          guard
-////            let collectionView = collectionView
-//            
-//                let indexPath = collectionView.indexPath(for: cell)
-//          else { return }
-//
-//          // Создаем действия для меню
-//          let action1 = UIAction(title: "Действие 1") { _ in
-//              // Обработчик действия 1
-//              print("1")
-//          }
-//          let action2 = UIAction(title: "Действие 2") { _ in
-//              // Обработчик действия 2
-//              print("2")
-//          }
-//          let menu = UIMenu(title: "", children: [action1, action2])
-//
-//          // Создаем конфигурацию контекстного меню и возвращаем ее
-//          let configuration = UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { _ in
-//              return menu
-//          }
-//
-//          // Отображаем контекстное меню
-//          let menuController = UIMenuController.shared
-//          menuController.showMenu(from: collectionView, rect: colorBackground.frame)
-//      }
-//    func didTapTrackerBackground(in cell: TrackerCollectionViewCell) {
-//            guard let indexPath = collectionView.indexPath(for: cell) else {
-//                return
-//            }
-//
-//            let menuConfiguration = UIContextMenuConfiguration(identifier: nil, previewProvider: nil, actionProvider: { _ in
-////                return UIMenu(title: "", children: [
-////                    UIAction(title: "Bold") { [weak self] _ in
-////                        self?.makeBold(indexPath: indexPath)
-////                    },
-////                    UIAction(title: "Italic") { [weak self] _ in
-////                        self?.makeItalic(indexPath: indexPath)
-////                    }
-////                ])
-//                let boldAction = UIAction(title: "Bold", image: UIImage(systemName: "bold")) { [weak self] _ in
-//                        self?.makeBold(indexPath: indexPath)
-//                    }
-//                    let italicAction = UIAction(title: "Italic", image: UIImage(systemName: "italic")) { [weak self] _ in
-//                        self?.makeItalic(indexPath: indexPath)
-//                    }
-//                    return UIMenu(title: "", children: [boldAction, italicAction])
-//            })
-//
-//        let targetView = cell.backgroundColor // здесь должен быть ваш UIImageView
-//            let contextMenu = UIMenuController.shared
-//            contextMenu.showContextMenu(from: targetView, in: targetView)
-//            contextMenu.menuItems = menuConfiguration.menuItems
-//
-//
-//
-//        }
-
-//    // Функция обработки жеста нажатия для вызова контекстного меню
-//       @objc func handleLongPressGesture(_ gesture: UILongPressGestureRecognizer) {
-//           guard gesture.state == .began else {
-//               return
-//           }
-//           let touchPoint = gesture.location(in: collectionView)
-//           if let indexPath = collectionView.indexPathForItem(at: touchPoint) {
-//               let selectedTracker = categories[indexPath.section].trackers[indexPath.item]
-//               let configuration = UIContextMenuConfiguration(identifier: nil, previewProvider: nil, actionProvider: { suggestedActions in
-//                   let boldAction = UIAction(title: "Bold", image: UIImage(systemName: "bold")) { _ in
-//                       self.makeBold(selectedTracker: selectedTracker)
-//                   }
-//                   let italicAction = UIAction(title: "Italic", image: UIImage(systemName: "italic")) { _ in
-//                       self.makeItalic(selectedTracker: selectedTracker)
-//                   }
-//                   return UIMenu(title: "", children: [boldAction, italicAction])
-//               })
-//               let menu = UIMenu(title: "")
-//               let cell = collectionView.cellForItem(at: indexPath)
-//               let menuInteraction = UIContextMenuInteraction(delegate: self)
-//               cell?.addInteraction(menuInteraction)
-//               menuInteraction.updateVisibleMenu(with: configuration, from: cell?.contentView.bounds ?? CGRect.zero)
-//           }
-//       }
-    func makeBold(selectedTracker: Tracker) {
-          print("bold")
-      }
-
-      func makeItalic(selectedTracker: Tracker) {
-          print("italic")
-      }
+    
+    @objc private func showFilteringMenu() {
+        analyticsServices?.tapOn(element: Const.analyticsIdentifierForFilterButton)
+        
+        let filtersViewModel = FiltersViewModel(selectedFilter: store.trackersFilter)
+        filtersViewModel.onFilterSelect = { [weak self] selectedFilter in
+            self?.store.trackersFilter = selectedFilter
+            self?.dismiss(animated: true)
+            self?.didUpdate()
+        }
+        
+        let filtersVC = FiltersViewController(viewModel: filtersViewModel)
+        present(filtersVC, animated: true)
+    }
     @objc private func dateHandler(_ sender: UIDatePicker) {
         store.currentDate = sender.date
         didUpdate()
@@ -298,11 +285,35 @@ final class TrackersViewController: UIViewController {
         self.updatePlaceholderVisibility()
     }
     
+    func editTracker(trackerCD: TrackerCD, newTracker: Tracker, categoryId: UUID) {
+        guard let categoryCD = categoriesStore.extractCategoryById(id: categoryId) else {
+            return
+        }
+        trackersStore.updateTracker(trackerCD: trackerCD, newTracker: newTracker, category: categoryCD)
+        self.didUpdate()
+        self.updatePlaceholderVisibility()
+    }
+    
+    
     //добавление трекера
     @objc
     private func addTracker() {
+        analyticsServices?.tapOn(element: Const.analyticsIdentifierForAddButton)
+        
         let trackerSelect = TrackerSelectViewController(categories: allCategories, addingTrackerCompletion: addNewTracker, addingCategoryCompletion: addNewCategory)
         present(trackerSelect, animated: true)
+    }
+    
+    @objc private func deleteConfirmationDialog(tracker: TrackerCD) {
+        let deleteDialog = UIAlertController(title: "Удалить?",
+                                             message: nil, preferredStyle: .actionSheet)
+        
+        deleteDialog.addAction(UIAlertAction(title: "Удалить", style: .destructive) { [weak self] _ in
+            try? self?.trackersStore.deleteTracker(tracker: tracker)
+        })
+        deleteDialog.addAction(UIAlertAction(title: "Отменить", style: .cancel))
+        
+        present(deleteDialog, animated: true)
     }
     
     
@@ -348,8 +359,6 @@ extension TrackersViewController: UICollectionViewDataSource {
         
         cell.configure(with: categories[indexPath.section].trackers[indexPath.item])
         cell.delegate = self
-//        let longPressGesture = UILongPressGestureRecognizer(target: self, action: #selector(handleLongPressGesture(_:)))
-//                cell.addGestureRecognizer(longPressGesture)
         return cell
     }
     
@@ -365,24 +374,70 @@ extension TrackersViewController: UICollectionViewDataSource {
 extension TrackersViewController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
     }
-// вызов контекстного меню
+    
+    
+    // вызов контекстного меню
     internal func collectionView(_ collectionView: UICollectionView, contextMenuConfigurationForItemAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
-        let action1 = UIAction(title: "действие 1") { [weak self] _ in
-            self?.makeBold(indexPath: indexPath)
+        
+        let tracker = categories[indexPath.section].trackers[indexPath.row]
+        let isPinned = tracker.pinned
+        let pinUnpinTitle = isPinned ? "Открепить" : "Закрепить"
+        
+        let action1 = UIAction(title: pinUnpinTitle) { [weak self] _ in
+            self?.handlePined(tracker: tracker)
+            
         }
-        let action2 = UIAction(title: "действие 2") { [weak self] _ in
-            self?.makeItalic(indexPath: indexPath)
+        let action2 = UIAction(title: "Редактировать") { [weak self] _ in
+            self?.analyticsServices?.tapOn(element: Const.analyticsIdentifierForTrackerContextMenuEdit)
+            self?.makeEdit(tracker: tracker)
         }
-        let menu = UIMenu(title: "", children: [action1, action2])
-        return UIContextMenuConfiguration(identifier: nil, previewProvider: nil, actionProvider: { _ in menu })
+        let action3 = UIAction(title: "Удалить") { [weak self] _ in
+            self?.analyticsServices?.tapOn(element: Const.analyticsIdentifierForTrackerContextMenuDelete)
+            self?.makeDelete(tracker: tracker)
+        }
+        let menu = UIMenu(title: "", children: [action1, action2, action3])
+        let menuConfiguration = UIContextMenuConfiguration(identifier: indexPath as NSIndexPath, previewProvider: {
+            let customView = self.makePreview(tracker: tracker)
+            return customView
+        }) { _ in
+            return UIMenu(title: "", children: [action1, action2, action3])
+        }
+        return menuConfiguration
     }
-
-    func makeBold(indexPath: IndexPath) {
-        print("bold")
+    private func makePreview(tracker: Tracker) -> UIViewController {
+        let viewController = UIViewController()
+        let preview = TrackersSubviewCell(frame: CGRect(x: 0, y: 0, width: 167, height: 90))
+        viewController.view = preview
+        preview.setupView(tracker: tracker)
+        viewController.view.backgroundColor = UIColor(hex: tracker.color + "ff")
+        
+        viewController.preferredContentSize = preview.frame.size
+        
+        return viewController
     }
-
-    func makeItalic(indexPath: IndexPath) {
-        print("italic")
+    
+    func makeEdit(tracker: Tracker) {
+        guard let trackerCD = trackersStore.extractTrackerById(id: tracker.id) else {
+            return
+        }
+        
+        let viewController = TrackerCreationViewController(categories: categories, isRegular: tracker.schedule != nil ? true : false, editingCompletion: editTracker, completion: nil, addingCategoryCompletion: addNewCategory, editableTracker: trackerCD)
+        
+        self.present(viewController, animated: true)
+    }
+    
+    func handlePined(tracker: Tracker) {
+        guard let trackerCD = trackersStore.extractTrackerById(id: tracker.id) else {
+            return
+        }
+        try? self.trackersStore.togglePinned(tracker: trackerCD)
+    }
+    
+    func makeDelete(tracker: Tracker) {
+        guard let trackerCD = trackersStore.extractTrackerById(id: tracker.id) else {
+            return
+        }
+        self.deleteConfirmationDialog(tracker: trackerCD)
     }
 }
 
@@ -456,7 +511,7 @@ extension TrackersViewController: UISearchBarDelegate {
 
 extension TrackersViewController: StoreDelegate {
     func didUpdate() {
-        categories = store.categories
+        categories = prepareCategories(categories: store.categories, filter: store.trackersFilter)
         allCategories = categoriesStore.extractAllCategoriesAsArray()
         collectionView.reloadData()
     }

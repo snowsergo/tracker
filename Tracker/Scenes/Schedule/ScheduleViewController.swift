@@ -16,12 +16,12 @@ final class ScheduleViewController: UIViewController{
     }
     
     private let labelView: UILabel = UILabel();
-    private let submitButton = UIButton(frame: CGRect(x: 100, y: 100, width: 100, height: 50))
-    
-    
+
+    private let submitButton = YPButton(label: "Готово")
+
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .white
+        view.backgroundColor = UIColor.asset(.white)
         setupEntity()
         view.addSubview(tableView)
         
@@ -55,10 +55,7 @@ final class ScheduleViewController: UIViewController{
         
         labelView.text = "Расписание"
         labelView.font = .asset(.ysDisplayMedium, size: 16)
-        submitButton.setTitle("Готово", for: .normal)
-        submitButton.backgroundColor = .asset(.black)
         submitButton.layer.cornerRadius = 16
-        submitButton.setTitleColor(.white, for: .normal)
         submitButton.addTarget(self, action: #selector(addSchedule), for: .touchUpInside)
         
         
