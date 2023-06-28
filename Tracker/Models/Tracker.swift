@@ -8,12 +8,14 @@ struct Tracker {
     let schedule: Set<WeekDay>?
     let isCompleted: Bool?
     let recordsCount: Int?
-
-    init(id: UUID = UUID(), label: String, emoji: String, color: String, schedule: Set<WeekDay>?, isCompleted:Bool?, recordsCount: Int?) {
+    let pinned: Bool
+    
+    init(id: UUID = UUID(), label: String, emoji: String, color: String, pinned: Bool, schedule: Set<WeekDay>?, isCompleted:Bool?, recordsCount: Int?) {
         self.id = id
         self.label = label
         self.emoji = emoji
         self.color = color
+        self.pinned = pinned
         self.schedule = schedule
         self.isCompleted = isCompleted
         self.recordsCount = recordsCount
@@ -28,12 +30,13 @@ extension Tracker {
             let emoji = data.emoji,
             let color = data.color
         else { return nil }
-
+        let pinned = data.pinned
         var schedule: Set<WeekDay>?
         if let scheduleData = data.schedule {
             schedule = try? decoder.decode(Set<WeekDay>.self, from: scheduleData)
         }
-
-        return .init(id: id, label: label, emoji: emoji, color: color, schedule: schedule, isCompleted: isCompleted ?? false, recordsCount: recordsCount)
+        
+        
+        return .init(id: id, label: label, emoji: emoji, color: color, pinned: pinned, schedule: schedule, isCompleted: isCompleted ?? false, recordsCount: recordsCount)
     }
 }

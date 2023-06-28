@@ -3,6 +3,7 @@ import UIKit
 enum ColorAsset: String, CaseIterable {
     case black, blue, white, grey, lightGrey, red
     case contrast, background
+    case datePickerBackground, datePickerTint
 }
 
 extension UIColor {

@@ -1,13 +1,15 @@
 import UIKit
 
 final class TrackerCreationViewController: UIViewController{
+    private var editableTracker: TrackerCD?
     private var isRegular: Bool
     private var categories: [TrackerCategory]
     private var selectedCategory: TrackerCategory?
     private var selectedEmoji: String?
     private var selectedColor: String?
     private var days: Set<WeekDay> = []
-    private let completion: (Tracker, UUID) -> Void
+    private let completion: ((Tracker, UUID) -> Void)?
+    private let editingCompletion:((TrackerCD, Tracker, UUID) -> Void)?
     private let addingCategoryCompletion: (TrackerCategory) -> Void
     private let emojis = [
         "🙂", "😻", "🌺", "🐶", "❤️", "😱", "😇", "😡", "🥶",
@@ -33,6 +35,7 @@ final class TrackerCreationViewController: UIViewController{
         "#8D72E6",
         "#2FD058"
     ]
+
     
     private let emojiCollectionView: UICollectionView = {
         let collectionView = UICollectionView(
@@ -71,13 +74,21 @@ final class TrackerCreationViewController: UIViewController{
     }()
     
     private var scrollView: UIScrollView = UIScrollView()
-    
-    init(categories: [TrackerCategory], isRegular: Bool, completion: @escaping (Tracker, UUID) -> Void, addingCategoryCompletion: @escaping (TrackerCategory) -> Void){
+
+
+    private lazy var jsonEncoder = JSONEncoder()
+    private lazy var jsonDecoder = JSONDecoder()
+
+    init(categories: [TrackerCategory], isRegular: Bool, editingCompletion:((TrackerCD, Tracker, UUID) -> Void)? = nil, completion: ((Tracker, UUID) -> Void)? = nil, addingCategoryCompletion: @escaping (TrackerCategory) -> Void, editableTracker: TrackerCD? = nil){
         self.categories = categories
         self.isRegular = isRegular
         self.completion = completion
+        self.editingCompletion = editingCompletion
         self.addingCategoryCompletion = addingCategoryCompletion
+        self.editableTracker = editableTracker
+
         super.init(nibName: nil, bundle: nil)
+
     }
     
     required init?(coder: NSCoder) {
@@ -91,9 +102,10 @@ final class TrackerCreationViewController: UIViewController{
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .white
+        view.backgroundColor = UIColor.asset(.white)
         setupAppearance()
         addCategoryButton()
+        setupEditable()
         if isRegular {
             addScheduleButton()
         }
@@ -101,6 +113,7 @@ final class TrackerCreationViewController: UIViewController{
         setupScrollView(isRegular: isRegular)
         setupEmojiCollectionView()
         setupColorCollectionView()
+
     }
     
     
@@ -114,7 +127,26 @@ final class TrackerCreationViewController: UIViewController{
             scrollView.bottomAnchor.constraint(equalTo: submitButton.topAnchor, constant: -16),
         ])
     }
-    
+
+    private func setupEditable(){
+        if let trackerCD = editableTracker {
+            if let categoryCD =  trackerCD.category, let category = TrackerCategory.fromCoreData(categoryCD, decoder: jsonDecoder){
+                selectCategory(selectedCategory: category)
+            }
+
+            if let tracker = Tracker.fromCoreData(trackerCD, decoder: jsonDecoder, isCompleted: nil, recordsCount: nil) {
+                days = tracker.schedule ?? []
+                selectedColor = tracker.color
+                selectedEmoji = tracker.emoji
+                textField.text = tracker.label
+            }
+            let selectedDays = WeekDay.allCases
+                .filter { days.contains($0) }
+                .map { $0.shortLabel }
+                .joined(separator: ", ")
+            self.scheduleButton.setSubtitle(selectedDays.isEmpty ? nil : selectedDays)
+        }
+    }
     private func setupAppearance() {
         
         labelView.translatesAutoresizingMaskIntoConstraints = false
@@ -164,18 +196,20 @@ final class TrackerCreationViewController: UIViewController{
             cancelButton.widthAnchor.constraint(equalToConstant: 160)
         ])
         
-        labelView.text = isRegular ? "Новая привычка" : "Новое нерегулярное событие"
+
+        labelView.text = editableTracker != nil ? (isRegular ? "Редактирование привычки" : "Редактирование нерегулярного события") : (isRegular ? "Новая привычка" : "Новое нерегулярное событие")
+
         labelView.font = .asset(.ysDisplayMedium, size: 16)
-        submitButton.setTitle("Создать", for: .normal)
+        submitButton.setTitle(editableTracker == nil ? "Создать" : "Сохранить", for: .normal)
         submitButton.backgroundColor = .asset(.grey)
         submitButton.isEnabled = false
         submitButton.layer.cornerRadius = 16
-        submitButton.addTarget(self, action: #selector(createTracker), for: .touchUpInside)
-        submitButton.setTitleColor(.white, for: .normal)
+        submitButton.addTarget(self, action: #selector(handleTracker), for: .touchUpInside)
+        submitButton.setTitleColor(UIColor.asset(.white), for: .normal)
         cancelButton.setTitle("Отменить", for: .normal)
         cancelButton.layer.borderWidth = 1
         cancelButton.layer.borderColor = UIColor.asset(.red).cgColor
-        cancelButton.setTitleColor(.asset(.red), for: .normal)
+        cancelButton.setTitleColor(UIColor.asset(.red), for: .normal)
         cancelButton.layer.cornerRadius = 16
         cancelButton.addTarget(self, action: #selector(cancelCreation), for: .touchUpInside)
         
@@ -194,6 +228,7 @@ final class TrackerCreationViewController: UIViewController{
             emojiCollectionView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
             emojiCollectionView.topAnchor.constraint(equalTo: scrollView.topAnchor)
         ])
+        emojiCollectionView.backgroundColor = UIColor.asset(.white)
         
     }
     
@@ -211,6 +246,7 @@ final class TrackerCreationViewController: UIViewController{
             colorCollectionView.topAnchor.constraint(equalTo: emojiCollectionView.bottomAnchor),
             colorCollectionView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
         ])
+        colorCollectionView.backgroundColor = UIColor.asset(.white)
     }
     
     
@@ -299,24 +335,44 @@ private extension TrackerCreationViewController {
         present(categoryViewController, animated: true)
     }
     
-    @objc func createTracker() {
+
+    @objc func handleTracker() {
         guard let text = textField.text, let emoji = selectedEmoji, let color = selectedColor else {
             assertionFailure("Button should be disabled")
             return
         }
-        
-        let newTracker = Tracker(
-            label: text,
-            emoji: emoji,
-            color: color,
-            schedule: isRegular ? days : nil,
-            isCompleted: nil,
-            recordsCount: nil
-        )
-        guard let categoryId = selectedCategory?.id else { return }
-        completion(newTracker, categoryId)
-        
-        
+
+        if let editableTracker = editableTracker, let id = editableTracker.id {
+            let newTracker = Tracker(
+                id: id,
+                label: text,
+                emoji: emoji,
+                color: color,
+                pinned: false,
+                schedule: isRegular ? days : nil,
+                isCompleted: nil,
+                recordsCount: nil
+            )
+            guard let categoryId = selectedCategory?.id else {
+                return
+            }
+            editingCompletion?(editableTracker, newTracker, categoryId)
+        } else {
+            let newTracker = Tracker(
+                label: text,
+                emoji: emoji,
+                color: color,
+                pinned: false,
+                schedule: isRegular ? days : nil,
+                isCompleted: nil,
+                recordsCount: nil
+            )
+            guard let categoryId = selectedCategory?.id else {
+                return
+            }
+            completion?(newTracker, categoryId)
+        }
+
         self.view.window!.rootViewController?.dismiss(animated: false, completion: nil)
     }
     
@@ -340,11 +396,11 @@ extension TrackerCreationViewController: UICollectionViewDataSource {
     ) -> UICollectionViewCell {
         if collectionView == emojiCollectionView {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "emojiCell", for: indexPath) as! EmojiCell
-            cell.configure(emoji: emojis[indexPath.row], isSelected: false)
+            cell.configure(emoji: emojis[indexPath.row], isSelected: emojis[indexPath.row] == selectedEmoji)
             return cell
         } else if collectionView == colorCollectionView  {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "colorCell", for: indexPath) as! ColorCell
-            cell.configure(color: colors[indexPath.row], isSelected: false)
+            cell.configure(color: colors[indexPath.row], isSelected: colors[indexPath.row] == selectedColor)
             return cell
         }
         else {

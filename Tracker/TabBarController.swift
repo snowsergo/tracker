@@ -2,7 +2,7 @@ import UIKit
 
 final class TabBarController: UITabBarController {
     var onboarding: UIViewController?
-    
+
     init(onboarding: UIViewController?) {
         self.onboarding = onboarding
         super.init(nibName: nil, bundle: nil)
@@ -15,18 +15,27 @@ final class TabBarController: UITabBarController {
     override func viewDidLoad() {
         super.viewDidLoad()
         let store = Store()
-        let viewController = TrackersViewController(store: store)
+        let analyticsServices = AnalyticsServices(services: [AppMetrica(key: Const.appMetricaApiKey)])
+        let viewController = TrackersViewController(store: store, analyticsServices: analyticsServices)
         let navigationController = UINavigationController(rootViewController: viewController)
-        
-        let statisticsViewController = StatisticsViewController()
-        
+
+        let statisticsViewController = UINavigationController(
+            rootViewController: StatisticsViewController(
+                viewModel: StatisticsViewModel(
+                    model: StatisticsService(
+                        store: store
+                    )
+                )
+            )
+        )
+
         navigationController.tabBarItem = UITabBarItem(
-            title: NSLocalizedString("Трэкеры", comment: ""),
+            title: NSLocalizedString("trackers", comment: ""),
             image: UIImage(named: "tracker-icon"),
             selectedImage: nil
         )
         statisticsViewController.tabBarItem = UITabBarItem(
-            title: NSLocalizedString("Статистика", comment: ""),
+            title: NSLocalizedString("statistics", comment: ""),
             image: UIImage(named: "statistics-icon"),
             selectedImage: nil
         )

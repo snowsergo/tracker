@@ -1,6 +1,6 @@
 import UIKit
 
-final class TrackerCollectionViewCell: UICollectionViewCell {
+final class TrackerCollectionViewCell: UICollectionViewCell, UICollectionViewDelegate {
     weak var delegate: TrackersViewController?
     
     required init?(coder: NSCoder) {
@@ -15,10 +15,12 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
     override func prepareForReuse() {
         configure(with: nil)
     }
-    
+
+
     private lazy var addButton: UIButton = {
         let button = UIButton()
-        button.setImage(UIImage(systemName: "plus"), for: .normal)
+        let plusImage = UIImage(systemName: "plus")?.withRenderingMode(.alwaysTemplate)
+        button.setImage(plusImage, for: .normal)
         button.layer.cornerRadius = 17
         button.clipsToBounds = true
         button.tintColor = .asset(.white)
@@ -27,15 +29,23 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
         return button
     }()
     
-    private var colorBackground: UIView = {
+    var colorBackground: UIView = {
         let view = UIView()
         view.layer.cornerRadius = 16
         view.clipsToBounds = true
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
+
+    let iconPinned: UIImageView = {
+        let pinnedImage = UIImage(named: "iconPinned")?.withRenderingMode(.alwaysTemplate)
+        let view = UIImageView(image: pinnedImage)
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.tintColor = UIColor.asset(.white)
+        return view
+    }()
     
-    private var trackerLabel: UILabel = {
+     var trackerLabel: UILabel = {
         let label = UILabel()
         label.numberOfLines = 0
         label.font = .asset(.ysDisplayMedium, size: 12)
@@ -53,14 +63,14 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
         return label
     }()
     
-    private var emojiLabel: UILabel = {
+     var emojiLabel: UILabel = {
         let label = UILabel()
         label.font = .asset(.ysDisplayMedium, size: 12)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
-    private var emojiBackground: UIView = {
+     var emojiBackground: UIView = {
         let view = UIView()
         view.backgroundColor = .asset(.contrast)
         view.layer.cornerRadius = 12
@@ -74,17 +84,36 @@ extension TrackerCollectionViewCell {
     func configure(with model: Tracker?) {
         trackerLabel.text = model?.label
         dayLabel.text = declineDay(model?.recordsCount ?? 0)
+        dayLabel.text = String.localizedStringWithFormat(NSLocalizedString("daysDone", comment: ""), model?.recordsCount ?? 0)
         emojiLabel.text = model?.emoji
         guard let color = model?.color else {return}
         colorBackground.backgroundColor = UIColor(hex: color + "ff")
         addButton.backgroundColor =  UIColor(hex: color + "ff")
         if model?.isCompleted ?? false {
-            addButton.setImage(UIImage(named: "done"), for: .normal)
+             let doneImage = UIImage(named: "done")?.withTintColor(.asset(.white), renderingMode: .alwaysOriginal)
+             addButton.setImage(doneImage, for: .normal)
+         } else {
+             let plusImage = UIImage(systemName: "plus")?.withTintColor(.asset(.white), renderingMode: .alwaysTemplate)
+             addButton.setImage(plusImage, for: .normal)
+         }
+
+        self.showPinned(pinned: model?.pinned)
+    }
+    
+    func showPinned(pinned: Bool?) {
+        if let pinned = pinned, pinned {
+            contentView.addSubview(iconPinned)
+            NSLayoutConstraint.activate([
+                iconPinned.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 12),
+                iconPinned.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -12)
+            ])
         } else {
-            addButton.setImage(UIImage(systemName: "plus"), for: .normal)
+            iconPinned.removeFromSuperview()
         }
     }
-}
+
+    }
+
 
 private extension TrackerCollectionViewCell {
     @objc func doneTapped() {
@@ -101,7 +130,8 @@ private extension TrackerCollectionViewCell {
         contentView.addSubview(emojiLabel)
         contentView.insertSubview(emojiBackground, at: 0)
         contentView.insertSubview(colorBackground, at: 0)
-        
+
+
         NSLayoutConstraint.activate([
             colorBackground.topAnchor.constraint(equalTo: contentView.topAnchor),
             colorBackground.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
@@ -126,3 +156,6 @@ private extension TrackerCollectionViewCell {
         ])
     }
 }
+
+
+
