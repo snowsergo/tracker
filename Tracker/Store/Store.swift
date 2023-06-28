@@ -241,6 +241,12 @@ final class Store: NSObject {
         request.fetchLimit = 1
         return try? context.fetch(request).first
     }
+
+    func getCompletedTrackerRecordsCount()->Int{
+        let fetchRequest = NSFetchRequest<NSNumber>(entityName: "TrackerRecordCD")
+        fetchRequest.resultType = .countResultType
+        return (try? context.fetch(fetchRequest).first)?.intValue ?? 0
+    }
 }
 
 // MARK: - NSFetchedResultsControllerDelegate

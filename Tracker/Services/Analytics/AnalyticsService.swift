@@ -29,11 +29,11 @@ final class AnalyticsServices: AnalyticsServicesProtocol {
         }
     }
     
-    func tapOn(element: String) {
-        services.enumerated().forEach { [weak self] index, item in
+    func tapOn(screen: String, item: String) {
+        services.enumerated().forEach { [weak self] index, element in
             guard let self = self else { return }
             if self.isActivated[index] {
-                item.tapOn(element: element)
+                element.tapOn(screen: screen, item: item)
             }
         }
     }

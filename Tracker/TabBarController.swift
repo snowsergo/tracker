@@ -19,8 +19,16 @@ final class TabBarController: UITabBarController {
         let viewController = TrackersViewController(store: store, analyticsServices: analyticsServices)
         let navigationController = UINavigationController(rootViewController: viewController)
 
-        let statisticsViewController = StatisticsViewController()
-        
+        let statisticsViewController = UINavigationController(
+            rootViewController: StatisticsViewController(
+                viewModel: StatisticsViewModel(
+                    model: StatisticsService(
+                        store: store
+                    )
+                )
+            )
+        )
+
         navigationController.tabBarItem = UITabBarItem(
             title: NSLocalizedString("trackers", comment: ""),
             image: UIImage(named: "tracker-icon"),

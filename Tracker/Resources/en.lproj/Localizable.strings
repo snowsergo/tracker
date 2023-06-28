@@ -44,3 +44,7 @@
 "trackersFilterToday" = "Tracker for today";
 "trackersFilterTodayCompleted" = "Completed";
 "trackersFilterTodayUncompleted" = "Uncompleted";
+"nothingToAnalyze" = "Nothing to analyze";
+"statisticsAverage" = "Average per day value";
+"statisticsBestPeriod" = "Best period";
+"statisticsBestDays" = "Best days";

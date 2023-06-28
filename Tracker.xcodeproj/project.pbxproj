@@ -14,10 +14,13 @@
 		D50E7C5A2A43134B0076DE0E /* Localizable.stringsdict in Resources */ = {isa = PBXBuildFile; fileRef = D50E7C5C2A43134B0076DE0E /* Localizable.stringsdict */; };
 		D5116942298C5BA200D418EC /* TrackerCreationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5116941298C5BA200D418EC /* TrackerCreationViewController.swift */; };
 		D532D3462988601000572A8A /* TabBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D532D3452988601000572A8A /* TabBarController.swift */; };
-		D532D3482988618D00572A8A /* StatisticsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D532D3472988618D00572A8A /* StatisticsViewController.swift */; };
 		D53EAE4829AE8A6600E40373 /* CategoryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D53EAE4729AE8A6600E40373 /* CategoryViewController.swift */; };
 		D53EAE4A29AE8F0B00E40373 /* CategoryCreationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D53EAE4929AE8F0B00E40373 /* CategoryCreationViewController.swift */; };
 		D53EAE4C29AEA4D300E40373 /* CategoryViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = D53EAE4B29AEA4D300E40373 /* CategoryViewCell.swift */; };
+		D54EF5F02A4C614E004D8E1D /* StatisticsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D54EF5ED2A4C614E004D8E1D /* StatisticsViewModel.swift */; };
+		D54EF5F12A4C614E004D8E1D /* StatisticsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D54EF5EE2A4C614E004D8E1D /* StatisticsViewController.swift */; };
+		D54EF5F22A4C614E004D8E1D /* StatisticsViewItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = D54EF5EF2A4C614E004D8E1D /* StatisticsViewItem.swift */; };
+		D54EF5F42A4C6189004D8E1D /* StatisticsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = D54EF5F32A4C6189004D8E1D /* StatisticsService.swift */; };
 		D55805612A4A16740020446E /* Podfile in Resources */ = {isa = PBXBuildFile; fileRef = D55805602A4A16740020446E /* Podfile */; };
 		D56E0C70298B12E7008E2038 /* TrackerSelectViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D56E0C6F298B12E7008E2038 /* TrackerSelectViewController.swift */; };
 		D57ADD1F2A47969400A227C2 /* FiltersViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D57ADD1E2A47969400A227C2 /* FiltersViewController.swift */; };
@@ -107,10 +110,13 @@
 		D50E7C5D2A4313500076DE0E /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = ru; path = ru.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
 		D5116941298C5BA200D418EC /* TrackerCreationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackerCreationViewController.swift; sourceTree = "<group>"; };
 		D532D3452988601000572A8A /* TabBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabBarController.swift; sourceTree = "<group>"; };
-		D532D3472988618D00572A8A /* StatisticsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatisticsViewController.swift; sourceTree = "<group>"; };
 		D53EAE4729AE8A6600E40373 /* CategoryViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryViewController.swift; sourceTree = "<group>"; };
 		D53EAE4929AE8F0B00E40373 /* CategoryCreationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryCreationViewController.swift; sourceTree = "<group>"; };
 		D53EAE4B29AEA4D300E40373 /* CategoryViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryViewCell.swift; sourceTree = "<group>"; };
+		D54EF5ED2A4C614E004D8E1D /* StatisticsViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StatisticsViewModel.swift; sourceTree = "<group>"; };
+		D54EF5EE2A4C614E004D8E1D /* StatisticsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StatisticsViewController.swift; sourceTree = "<group>"; };
+		D54EF5EF2A4C614E004D8E1D /* StatisticsViewItem.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StatisticsViewItem.swift; sourceTree = "<group>"; };
+		D54EF5F32A4C6189004D8E1D /* StatisticsService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StatisticsService.swift; sourceTree = "<group>"; };
 		D55805602A4A16740020446E /* Podfile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Podfile; sourceTree = SOURCE_ROOT; };
 		D56E0C6F298B12E7008E2038 /* TrackerSelectViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackerSelectViewController.swift; sourceTree = "<group>"; };
 		D57ADD1E2A47969400A227C2 /* FiltersViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FiltersViewController.swift; sourceTree = "<group>"; };
@@ -221,6 +227,16 @@
 			path = Category;
 			sourceTree = "<group>";
 		};
+		D54EF5EC2A4C614E004D8E1D /* Statistics */ = {
+			isa = PBXGroup;
+			children = (
+				D54EF5ED2A4C614E004D8E1D /* StatisticsViewModel.swift */,
+				D54EF5EE2A4C614E004D8E1D /* StatisticsViewController.swift */,
+				D54EF5EF2A4C614E004D8E1D /* StatisticsViewItem.swift */,
+			);
+			path = Statistics;
+			sourceTree = "<group>";
+		};
 		D57ADD1D2A47962C00A227C2 /* Filters */ = {
 			isa = PBXGroup;
 			children = (
@@ -242,6 +258,7 @@
 		D58885B7299C324D003ED98D /* Scenes */ = {
 			isa = PBXGroup;
 			children = (
+				D54EF5EC2A4C614E004D8E1D /* Statistics */,
 				D57ADD1D2A47962C00A227C2 /* Filters */,
 				D53EAE4629AE8A4100E40373 /* Category */,
 				D58885BD299C3406003ED98D /* Schedule */,
@@ -362,6 +379,7 @@
 		D5D5FD912A4A1E180052A8A7 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				D54EF5F32A4C6189004D8E1D /* StatisticsService.swift */,
 				D5D5FD922A4A1E250052A8A7 /* Analytics */,
 			);
 			path = Services;
@@ -420,7 +438,6 @@
 				D5DC2D4D2985CD6C001F9D7B /* SceneDelegate.swift */,
 				D58A5EA0298EC31400260AC8 /* Models */,
 				D58A5E9A298EB97200260AC8 /* Resources */,
-				D532D3472988618D00572A8A /* StatisticsViewController.swift */,
 				D532D3452988601000572A8A /* TabBarController.swift */,
 				D5DC2D512985CD6C001F9D7B /* Main.storyboard */,
 				D5DC2D572985CD6D001F9D7B /* Assets.xcassets */,
@@ -724,14 +741,18 @@
 				D5D5FD982A4A1E250052A8A7 /* AppMetrica.swift in Sources */,
 				D58E01A329BE6ED900F5D4C2 /* Store.swift in Sources */,
 				D53EAE4C29AEA4D300E40373 /* CategoryViewCell.swift in Sources */,
+				D54EF5F02A4C614E004D8E1D /* StatisticsViewModel.swift in Sources */,
 				D58A5EA2298EC33000260AC8 /* Tracker.swift in Sources */,
+				D54EF5F12A4C614E004D8E1D /* StatisticsViewController.swift in Sources */,
 				D58885BF299C34A3003ED98D /* ImageAsset.swift in Sources */,
 				D590AB5E29B28598001B760E /* ColorCell.swift in Sources */,
 				D58885B3299C3146003ED98D /* OnboardingViewController.swift in Sources */,
 				D58A5EAA298ED40300260AC8 /* ScheduleViewController.swift in Sources */,
+				D54EF5F22A4C614E004D8E1D /* StatisticsViewItem.swift in Sources */,
 				D57ADD212A47969A00A227C2 /* FiltersViewModel.swift in Sources */,
 				D53EAE4A29AE8F0B00E40373 /* CategoryCreationViewController.swift in Sources */,
 				D58A5EA8298EC4E000260AC8 /* WeekDay.swift in Sources */,
+				D54EF5F42A4C6189004D8E1D /* StatisticsService.swift in Sources */,
 				D590AB5A29B26658001B760E /* EmojiCell.swift in Sources */,
 				D5D5FD9A2A4A1E250052A8A7 /* AnalyticsServiceProtocol.swift in Sources */,
 				D58E01A529BE73C200F5D4C2 /* TrackerStore.swift in Sources */,
@@ -748,7 +769,6 @@
 				D58A5EA4298EC3D900260AC8 /* TrackerCategory.swift in Sources */,
 				D58885B6299C31F0003ED98D /* YPButton.swift in Sources */,
 				D5BE07F329EB306300ED366D /* CategoriesViewModel.swift in Sources */,
-				D532D3482988618D00572A8A /* StatisticsViewController.swift in Sources */,
 				D5DC2D4C2985CD6C001F9D7B /* AppDelegate.swift in Sources */,
 				D57ADD1F2A47969400A227C2 /* FiltersViewController.swift in Sources */,
 				D532D3462988601000572A8A /* TabBarController.swift in Sources */,

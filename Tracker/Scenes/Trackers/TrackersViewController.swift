@@ -234,7 +234,7 @@ final class TrackersViewController: UIViewController {
     }()
     
     func setTrackerCompleted(_ cell: TrackerCollectionViewCell) {
-        analyticsServices?.tapOn(element: Const.analyticsIdentifierForTracker)
+        analyticsServices?.tapOn(screen: screenName, item: Const.analyticsIdentifierForTracker)
         guard
             let indexPath = collectionView.indexPath(for: cell)
         else {
@@ -257,7 +257,7 @@ final class TrackersViewController: UIViewController {
     }
     
     @objc private func showFilteringMenu() {
-        analyticsServices?.tapOn(element: Const.analyticsIdentifierForFilterButton)
+        analyticsServices?.tapOn(screen:screenName, item: Const.analyticsIdentifierForFilterButton)
         
         let filtersViewModel = FiltersViewModel(selectedFilter: store.trackersFilter)
         filtersViewModel.onFilterSelect = { [weak self] selectedFilter in
@@ -298,7 +298,7 @@ final class TrackersViewController: UIViewController {
     //добавление трекера
     @objc
     private func addTracker() {
-        analyticsServices?.tapOn(element: Const.analyticsIdentifierForAddButton)
+        analyticsServices?.tapOn(screen: screenName, item: Const.analyticsIdentifierForAddButton)
         
         let trackerSelect = TrackerSelectViewController(categories: allCategories, addingTrackerCompletion: addNewTracker, addingCategoryCompletion: addNewCategory)
         present(trackerSelect, animated: true)
@@ -326,7 +326,7 @@ final class TrackersViewController: UIViewController {
     // настройка коллекции
     private func setupCollectionView() {
         collectionView.translatesAutoresizingMaskIntoConstraints = false
-        
+        collectionView.backgroundColor = UIColor.asset(.white)
         view.addSubview(collectionView)
         let safeArea = view.safeAreaLayoutGuide
         
@@ -388,13 +388,17 @@ extension TrackersViewController: UICollectionViewDelegate {
             
         }
         let action2 = UIAction(title: "Редактировать") { [weak self] _ in
-            self?.analyticsServices?.tapOn(element: Const.analyticsIdentifierForTrackerContextMenuEdit)
+            self?.analyticsServices?.tapOn(screen: self?.screenName ?? "Main", item: Const.analyticsIdentifierForTrackerContextMenuEdit)
             self?.makeEdit(tracker: tracker)
         }
-        let action3 = UIAction(title: "Удалить") { [weak self] _ in
-            self?.analyticsServices?.tapOn(element: Const.analyticsIdentifierForTrackerContextMenuDelete)
-            self?.makeDelete(tracker: tracker)
-        }
+
+        let deleteActionTitle = NSAttributedString(string: "Удалить", attributes: [.foregroundColor: UIColor.asset(.red)])
+          let action3 = UIAction(title: "", image: nil, identifier: nil, discoverabilityTitle: nil, attributes: [], state: .off) { [weak self] _ in
+              self?.analyticsServices?.tapOn(screen: self?.screenName ?? "Main", item: Const.analyticsIdentifierForTrackerContextMenuDelete)
+              self?.makeDelete(tracker: tracker)
+          }
+          action3.setValue(deleteActionTitle, forKey: "attributedTitle")
+
         let menu = UIMenu(title: "", children: [action1, action2, action3])
         let menuConfiguration = UIContextMenuConfiguration(identifier: indexPath as NSIndexPath, previewProvider: {
             let customView = self.makePreview(tracker: tracker)

@@ -19,7 +19,7 @@ final class AppMetrica: AnalyticsServiceProtocol {
         YMMYandexMetrica.reportEvent("close", parameters: ["screen": screen])
     }
     
-    func tapOn(element: String) {
-        YMMYandexMetrica.reportEvent(element + " click")
+    func tapOn(screen: String, item: String) {
+        YMMYandexMetrica.reportEvent("click", parameters: ["screen": screen, "item": item])
     }
 }
